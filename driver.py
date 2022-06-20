@@ -1,6 +1,6 @@
 # TODO: import data
 '''
-Data needed:
+Data needed (for 250m WAPOR product):
 
 INPUT						TYPE			SENSOR 			PRODUCT 			COMMENT
 
