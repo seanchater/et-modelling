@@ -9,7 +9,7 @@ def main(input_folder, output_folder, Date):
     warnings.filterwarnings('ignore')
 
     import ETLook as ETLook
-    import pyWAPOR.Functions.Processing_Functions as PF
+    import Functions as PF
     import ref_outputs as out
 
     # Define Date string
