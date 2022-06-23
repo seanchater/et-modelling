@@ -39,13 +39,13 @@ Land Cover 					Static 			WaPOR L1
 '''
 
 # TODO: preproces and prepare inputs
-'''
-If using ASMRE data then might need to do resampling coz 25km res
-'''
+
 
 # TODO: calculate E & T using PM equations
 '''
 E(soil) & T(canopy) = (delta(Rn-G)+rho*Cp((delta(e))/(r(a))))/(delta+gamma(1+(r)/(r(a))))
 '''
+
+
 
 # TODO: produce output maps (raster grids probably)
