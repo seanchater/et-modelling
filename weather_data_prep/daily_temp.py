@@ -22,13 +22,31 @@ temp["month"] = temp.apply(lambda row: row.date.split("-")[1], axis=1)
 temp.head()
 
 # first select all observations from a single month (eg: 01)
-obs_jan = temp[temp["month"] == "01"]
+d = {
+	1: "01",
+	2: "02",
+	3: "03", 
+	4: "04",
+	5: "05", 
+	6: "06",
+	7: "07",
+	8: "08",
+	9: "09",
+	10: "10",
+	11: "11",
+	12: "12"
+}
 
-# only use temperatures within an acceptable range [-10, 50]
-temp = temp[(temp["temperature_mean"] > -10) & (temp["temperature_mean"] < 50)]
+for i in range(1,13):
 
-# then group by station (position: lat/lon) to get average temp of station for month
-temp_group = temp.groupby(["latitude", "longitude"])["temperature_mean"].mean()
+	month_obs = temp[temp["month"] == d[i]]
 
-# export to csv
-temp_group.to_csv("jan_av_temp.csv")
+	# only use temperatures within an acceptable range [-10, 50]
+	temp_valid = month_obs[(month_obs["temperature_mean"] > -10) & (month_obs["temperature_mean"] < 50)]
+
+	# then group by station (position: lat/lon) to get average temp of station for month
+	temp_group = temp_valid.groupby(["latitude", "longitude"])["temperature_mean"].mean()
+
+	# export to csv
+	outname = "{}_av_temp.csv".format(d[i])
+	temp_group.to_csv(outname)
