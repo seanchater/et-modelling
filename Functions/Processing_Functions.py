@@ -6,8 +6,8 @@ Created on Fri Feb 15 09:14:33 2019
 """
 
 import os
-import osr
-import gdal
+from osgeo import osr
+from osgeo import gdal
 import gzip
 import zipfile
 import numpy as np

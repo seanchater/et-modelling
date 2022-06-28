@@ -11,7 +11,7 @@ NDVI smoothing. In: Proceedings of the 1999 ASPRS Annual Conference, Portland, O
 """
 
 import numpy as np
-from numba import jit
+# from numba import jit
 from scipy import interpolate
 from scipy.ndimage.filters import generic_filter
 
@@ -57,7 +57,7 @@ def _calc_weights(y):
 
 
 # calculate the weighted linear regression
-@jit(nopython=True)
+# @jit(nopython=True)
 def _calc_linreg(x, y, w):
     eps = 1e-8
 
@@ -80,7 +80,7 @@ def _calc_linreg(x, y, w):
     return a, b
 
 
-@jit(nopython=True)
+# @jit(nopython=True)
 def _calc_linreg_wrapper_a(xyw):
     n = int(np.round(xyw.shape[0] / 3))
     xyw = xyw.reshape(3, n)
@@ -90,7 +90,7 @@ def _calc_linreg_wrapper_a(xyw):
     return a
 
 
-@jit(nopython=True)
+# @jit(nopython=True)
 def _calc_linreg_wrapper_b(xyw):
     n = int(np.round(xyw.shape[0] / 3))
     xyw = xyw.reshape(3, n)

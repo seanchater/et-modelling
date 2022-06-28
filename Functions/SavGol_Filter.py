@@ -13,7 +13,7 @@ high-quality NDVI time-series data set based on the Savitzky-Golay filter.
 
 import numpy as np
 
-from numba import jit
+# from numba import jit
 from scipy import interpolate
 from scipy.signal import savgol_filter
 
@@ -35,7 +35,7 @@ def _interpolate_1d(data):
     return yinterp
 
 
-@jit
+# @jit
 def _prepare_smoothing(N0):
     # long term change trend fitting:
     m = list(np.array([4, 5, 6, 7]) * 2 + 1)
@@ -63,7 +63,7 @@ def _prepare_smoothing(N0):
     return Ntr, W
 
 
-@jit
+# @jit
 def _recursive_smoothing(N0, Ntr, W, niter=0):
     max_iter = 5
     ndvi_stopping_difference = 0.05
@@ -84,7 +84,7 @@ def _recursive_smoothing(N0, Ntr, W, niter=0):
     return N1
 
 
-@jit
+# @jit
 def _savgol_reconstruct_1d(N0):
 
     # dont smooth if all nan

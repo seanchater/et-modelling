@@ -263,8 +263,8 @@ Soil Moisture (:mod:`ETLook.soil_moisture`)
 
 
 """
-import ref_ETLOOK_code, ref_solar_radiation, ref_clear_sky_radiation, ref_meteo, ref_radiation, ref_evapotranspiration, ref_soil_moisture, ref_leaf, ref_stress, ref_resistance, ref_roughness, ref_neutral, ref_unstable, ref_outputs
+import zeditETLook, solar_radiation, clear_sky_radiation, meteo, radiation, evapotranspiration, soil_moisture, leaf, stress, resistance, roughness, neutral, unstable, outputs
 
-__all__ = ['ETLook_code', 'solar_radiation', 'clear_sky_radiation', 'meteo, radiation', 'evapotranspiration', 'soil_moisture', 'leaf', 'stress', 'resistance', 'roughness', 'neutral', 'unstable', 'outputs']
+__all__ = ['zeditETLook', 'solar_radiation', 'clear_sky_radiation', 'meteo, radiation', 'evapotranspiration', 'soil_moisture', 'leaf', 'stress', 'resistance', 'roughness', 'neutral', 'unstable', 'outputs']
 
 __version__ = '0.1'
