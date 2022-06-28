@@ -194,6 +194,9 @@ def main(date):
     #trans_24[np.isnan(lst)] = np.nan
     print("Trans24 ", trans_24, "\nmin: ", np.nanmin(trans_24), "\nmax: ", np.nanmax(trans_24))
 
+	# define output filepaths
+    par_out = parm.PARAMS(file_path_out, date)
+
     # define prediction extent  ______________________________________________________________________:
     geo_ex = dest_lst.GetGeoTransform()
     proj_ex = dest_lst.GetProjection()
