@@ -13,7 +13,7 @@ from tkinter import filedialog
 import csv
 import math
 
-np.set_printoptions(suppress=True)
+#np.set_printoptions(suppress=True)
 
 # Read date format from csv
 def readDate(dfile):
