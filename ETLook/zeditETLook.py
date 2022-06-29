@@ -1,7 +1,7 @@
 from cmath import inf
 import os
 import sys
-import datetime
+import json
 # from osgeo import osr
 from osgeo import gdal
 import matplotlib.pyplot as plt
@@ -25,6 +25,13 @@ import Functions as PF
 
 #np.set_printoptions(suppress=True)
 
+file_path_in = ""
+file_path_out = ""
+rDate = ""
+input_dates = ""
+julian_dates = ""
+year = ""
+
 # Read date format from csv
 def readDate(dfile):
     input_dates = list()
@@ -43,38 +50,60 @@ def readDate(dfile):
     return input_dates, julian_dates, year
 
 
+def stripDate(rDate):
+    global input_dates
+    global julian_dates
+    global year
+    input_dates = rDate[0][0]
+    julian_dates = rDate[0][1]
+    year = rDate[0][2]
+
+
 ## Setting file path parameters   _________________________________________________________________:
 try:
     #print(sys.argv[1]) #tst
-    sys.argv[1]
-    if sys.argv.__contains__("-nogui"):
-        print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case remove <-nogui> and run again\33[0m)")
-        file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
-        file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
-        # file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
-        # file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
-        rDate = readDate("dateFormat.csv")
-        input_dates = rDate[0][0]
-        julian_dates = rDate[0][1]
-        year = rDate[0][2]
-        print("\n\n", input_dates, "\n", julian_dates, "\n", year) #tst
-    
-    if sys.argv.__contains__("-lst"): # Not implemented
+    sys.argv[1]    
+    if sys.argv.__contains__("-lst"):
         print("\n\tUsing path list...")
+        with open('settings.json') as json_file:
+            data = json.load(json_file)
+            file_path_in = data["in"]
+            file_path_out = data["out"]
+            rDate = readDate(data["dfmt"])
+            stripDate(rDate)
     
-    if sys.argv.__contains__("-mklst"): # Not implemented
-        print("\n\tCreate new path list...")
-except:
-    #print("GUI") #tst
-    root = tk.Tk()
-    root.withdraw()
+    if sys.argv.__contains__("-gui"):
+        print("\n\tGUI")
+        root = tk.Tk()
+        root.withdraw()
 
-    file_path_in = filedialog.askdirectory(title="Please Select Input Folder")
-    file_path_out = filedialog.askdirectory(title="Please Select Output Folder")
-    input_dates = readDate("dateFormat.csv")
-    print("\n\n input dates \n\n")
+        file_path_in = filedialog.askdirectory(title="Please Select Input Folder")
+        file_path_out = filedialog.askdirectory(title="Please Select Output Folder")
+        rDate = readDate(filedialog.askopenfilename(title="Please Select Date-Range CSV"))
+        stripDate(rDate)
+
+        root.quit()
+        print("\n\tCreate new path list...")
+        dictSettings = {
+            "in": file_path_in,
+            "out": file_path_out,
+            "dfmt": rDate
+        }
+        with open("settings.json", "w") as outfile:
+            json.dump(dictSettings, outfile)
+
+except:
+    print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case use the -gui argument\33[0m)")
+    file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
+    file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
+    # file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
+    # file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
+    rDate = readDate("dateFormat.csv")
+    stripDate(rDate)
+
+    """ print("\n\n input dates \n\n")
     print(input_dates)
-    print("\n\n")
+    print("\n\n") """
     
     
 print(file_path_in, file_path_out, input_dates) #tst
