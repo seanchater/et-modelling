@@ -49,10 +49,10 @@ try:
     sys.argv[1]
     if sys.argv.__contains__("-nogui"):
         print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case remove <-nogui> and run again\33[0m)")
-        # file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
-        # file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
-        file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
-        file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
+        file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
+        file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
+        # file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
+        # file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
         rDate = readDate("dateFormat.csv")
         input_dates = rDate[0][0]
         julian_dates = rDate[0][1]
@@ -79,6 +79,7 @@ except:
     
 print(file_path_in, file_path_out, input_dates) #tst
 
+## Clipping rasters to shapefile extent   _________________________________________________________:
 def clipRast(outName, inRast, ext, reCreate=False):
     '''
     (rasterOut, rasterToClip, extent, save over)
@@ -87,8 +88,9 @@ def clipRast(outName, inRast, ext, reCreate=False):
     if not reCreate:
         if not os.path.exists(outName):
             ras = gdal.Open(inRast)
+            srs = ras.GetProjectionRef()
             try:
-                gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras)
+                gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras, srcSRS=srs)
                 return [True, "Clipped Successfully"]
             except:
                 return [False, "Could not Clip..."]
@@ -96,8 +98,9 @@ def clipRast(outName, inRast, ext, reCreate=False):
             return [True, "Clip Exists"]
     else:
         ras = gdal.Open(inRast)
+        srs = ras.GetProjectionRef()
         try:
-            gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras)
+            gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras, srcSRS=srs)
             return [True, "Clipped Successfully"]
         except:
             return [False, "Could not Clip..."]
@@ -113,7 +116,7 @@ def main(date, jdate):
     # clip inputs files  ______________________________________________________________________________:
     print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent()) #tst
     for i in par.getKeysIN():
-        print(f'{i : >8}', end=' - ')
+        print(f'{i : >14}', end=' - ')
         state = clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent())
         if state[0]:
             print(f'{"done" : <7} : {state[1]}')
@@ -126,42 +129,42 @@ def main(date, jdate):
     nD = lst.GetNoDataValue()
     lst = lst.ReadAsArray()
     lst[lst == nD] = np.nan
-    print("LST ", lst, "\nmin: ", np.nanmin(lst), "\nmax: ", np.nanmax(lst)) #tst
+    # print("LST ", lst, "\nmin: ", np.nanmin(lst), "\nmax: ", np.nanmax(lst)) #tst
 
     dest_albedo = gdal.Open(par.getClipPathIN("albedo"))
     r0 = dest_albedo.GetRasterBand(1)
     nD = r0.GetNoDataValue()
     r0 = r0.ReadAsArray()
     r0[r0 == nD] = np.nan
-    print("R0 ", r0, "\nmin: ", np.nanmin(r0), "\nmax: ", np.nanmax(r0)) #tst
+    # print("R0 ", r0, "\nmin: ", np.nanmin(r0), "\nmax: ", np.nanmax(r0)) #tst
 
     dest_ndvi = gdal.Open(par.getClipPathIN("ndvi"))
     ndvi = dest_ndvi.GetRasterBand(1)
     nD = ndvi.GetNoDataValue()
     ndvi = ndvi.ReadAsArray()
     ndvi[ndvi == nD] = np.nan
-    print("NDVI ", ndvi, "\nmin: ", np.nanmin(ndvi), "\nmax: ", np.nanmax(ndvi)) #tst
+    # print("NDVI ", ndvi, "\nmin: ", np.nanmin(ndvi), "\nmax: ", np.nanmax(ndvi)) #tst
 
     desttime = gdal.Open(par.getClipPathIN("time"))
     dtime = desttime.GetRasterBand(1)
     nD = dtime.GetNoDataValue()
     dtime = dtime.ReadAsArray()
     dtime[dtime == nD] = np.nan
-    print("dtime ", dtime, "\nmin: ", np.nanmin(dtime), "\nmax: ", np.nanmax(dtime)) #tst
+    # print("dtime ", dtime, "\nmin: ", np.nanmin(dtime), "\nmax: ", np.nanmax(dtime)) #tst
 
     dest_lat = gdal.Open(par.getClipPathIN("lat"))
     lat_deg = dest_lat.GetRasterBand(1)
     nD = lat_deg.GetNoDataValue()
     lat_deg = lat_deg.ReadAsArray()
     lat_deg[lat_deg == nD] = np.nan
-    print("Lat ", lat_deg, "\nmin: ", np.nanmin(lat_deg), "\nmax: ", np.nanmax(lat_deg)) #tst
+    # print("Lat ", lat_deg, "\nmin: ", np.nanmin(lat_deg), "\nmax: ", np.nanmax(lat_deg)) #tst
 
     dest_lon = gdal.Open(par.getClipPathIN("lon"))
     lon_deg = dest_lon.GetRasterBand(1)
     nD = lon_deg.GetNoDataValue()
     lon_deg = lon_deg.ReadAsArray()
     lon_deg[lon_deg == nD] = np.nan
-    print("Lon ", lon_deg, "\nmin: ", np.nanmin(lon_deg), "\nmax: ", np.nanmax(lon_deg)) #tst
+    # print("Lon ", lon_deg, "\nmin: ", np.nanmin(lon_deg), "\nmax: ", np.nanmax(lon_deg)) #tst
 
     dest_dem = gdal.Open(par.getClipPathIN("dem"))
     z = dest_dem.GetRasterBand(1)
@@ -169,21 +172,21 @@ def main(date, jdate):
     z = z.ReadAsArray()
     #z[np.isnan(lst)] = np.nan
     # z[z == nD] = np.nan
-    print("Z ", z, "\nmin: ", np.nanmin(z), "\nmax: ", np.nanmax(z)) #tst
+    # print("Z ", z, "\nmin: ", np.nanmin(z), "\nmax: ", np.nanmax(z)) #tst
 
     dest_slope = gdal.Open(par.getClipPathIN("slope"))
     slope_deg = dest_slope.GetRasterBand(1)
     nD = slope_deg.GetNoDataValue()
     slope_deg = slope_deg.ReadAsArray()
     slope_deg[slope_deg == nD] = np.nan
-    print("Slope ", slope_deg, "\nmin: ", np.nanmin(slope_deg), "\nmax: ", np.nanmax(slope_deg)) #tst
+    # print("Slope ", slope_deg, "\nmin: ", np.nanmin(slope_deg), "\nmax: ", np.nanmax(slope_deg)) #tst
 
     dest_aspect = gdal.Open(par.getClipPathIN("aspect"))
     aspect_deg = dest_aspect.GetRasterBand(1)
     nD = aspect_deg.GetNoDataValue()
     aspect_deg = aspect_deg.ReadAsArray()
     aspect_deg[aspect_deg == nD] = np.nan
-    print("Aspect ", aspect_deg, "\nmin: ", np.nanmin(aspect_deg), "\nmax: ", np.nanmax(aspect_deg)) #tst
+    # print("Aspect ", aspect_deg, "\nmin: ", np.nanmin(aspect_deg), "\nmax: ", np.nanmax(aspect_deg)) #tst
 
     dest_lm = gdal.Open(par.getClipPathIN("landMask"))
     land_mask = dest_lm.GetRasterBand(1)
@@ -191,7 +194,7 @@ def main(date, jdate):
     land_mask = land_mask.ReadAsArray()
     # land_mask[np.isnan(lst)] = np.nan
     # land_mask[land_mask == nD] = np.nan
-    print("LandMask ", land_mask, "\nmin: ", np.nanmin(land_mask), "\nmax: ", np.nanmax(land_mask)) #tst
+    # print("LandMask ", land_mask, "\nmin: ", np.nanmin(land_mask), "\nmax: ", np.nanmax(land_mask)) #tst
 
     #dest_bulk = gdal.Open(par.getClipPathIN("bulk"))
     #bulk = dest_bulk.GetRasterBand(1).ReadAsArray()
@@ -202,7 +205,7 @@ def main(date, jdate):
     z_obst_max = z_obst_max.ReadAsArray()
     #z_obst_max[np.isnan(lst)] = np.nan
     # z_obst_max[z_obst_max == nD] = np.nan
-    print("ZobsMax ", z_obst_max, "\nmin: ", np.nanmin(z_obst_max), "\nmax: ", np.nanmax(z_obst_max)) #tst
+    # print("ZobsMax ", z_obst_max, "\nmin: ", np.nanmin(z_obst_max), "\nmax: ", np.nanmax(z_obst_max)) #tst
 
     """ dest_pairsea24 = gdal.Open(par.getClipPathIN("pair_24_0"))
     p_air_0_24 = dest_pairsea24.GetRasterBand(1).ReadAsArray()
@@ -279,7 +282,7 @@ def main(date, jdate):
     trans_24 = trans_24.ReadAsArray()
     #trans_24[np.isnan(lst)] = np.nan
     # u_24[u_24 == nD] = np.nan
-    print("Trans24 ", trans_24, "\nmin: ", np.nanmin(trans_24), "\nmax: ", np.nanmax(trans_24)) #tst
+    # print("Trans24 ", trans_24, "\nmin: ", np.nanmin(trans_24), "\nmax: ", np.nanmax(trans_24)) #tst
 
 	# define output filepaths
     # par_out = parm.PARAMS(file_path_out, date)
