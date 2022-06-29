@@ -63,7 +63,37 @@ class PARAMS:
 		#"wind_inst" : "wind_inst_%s.tif",
 		#"watCol_inst" : "wv_inst_%s.tif",
 		"trans_24" : os.path.join(os.path.join(input_path, "transmissivity_false/"), "transmissivity_clip.tif")
-        }
+		}
+
+		""" self.parDictIN = {
+		"albedo" : os.path.join(os.path.join(input_path, "Albedo_outputs/"), "Albedo_%s.tif" %input_dates),
+		"ndvi" : os.path.join(os.path.join(input_path, "Indecies/"), "Indeces_%s.tif" %input_dates),
+		"lst" : os.path.join(os.path.join(input_path, "LST/"), "LST_%s.tif" %input_dates),
+		"time" : os.path.join(os.path.join(input_path, "Time/"), "solarTime.tif"),
+		"lat" : os.path.join(os.path.join(input_path, "Lat_Long_Rasters/"), "r_lat.tif"),
+		"lon" : os.path.join(os.path.join(input_path, "Lat_Long_Rasters/"), "r_lon.tif"),
+		"dem" : os.path.join(os.path.join(input_path, "DEM_DERIVATIVES/"), "r_DEM_AOI.tif"),
+		"slope" : os.path.join(os.path.join(input_path, "DEM_DERIVATIVES/"), "r_Slope_AOI.tif"),
+		"aspect" : os.path.join(os.path.join(input_path, "DEM_DERIVATIVES/"), "r_Aspect_AOI.tif"),
+		"landMask" : os.path.join(os.path.join(input_path, "Land_Mask/"), "LandMask.tif"),
+		"bulk" : os.path.join(os.path.join(input_path, "LULC_Products/"), "BSR_AOI.tif"),
+		"maxObs" : os.path.join(os.path.join(input_path, "LULC_Products/"), "Max_height_AOI.tif"),
+		"pair_24_0" : os.path.join(os.path.join(input_path, "sea_pressure_24/"), "spressure_24_%s.tif"),
+		"pair_inst_0" : os.path.join(os.path.join(input_path, "sea_pressure_inst/"), "spressure_i_%s.tif"),
+		#"pair_inst" : "Pair_inst_%s.tif",
+		"pre" : os.path.join(os.path.join(input_path,"precip_24/"), "precip_24_%s.tif"),
+		"hum_24" : os.path.join(os.path.join(input_path, "hum_24/"),"hum_24_%s.tif" %input_dates),
+		"hum_inst" : os.path.join(os.path.join(input_path, "hum_inst/"), "hum_i_%s.tif" %input_dates),
+		"tair_24" : os.path.join(os.path.join(input_path, "temp_24/"),"temp_24_%s.tif" %input_dates),
+		"tair_inst" : os.path.join(os.path.join(input_path, "temp_inst/"),"temp_i_%s.tif" %input_dates),
+		#"tair_max_24" : "tair_max_24_%s.tif",
+		#"tair_min_24" : "tair_min_24_%s.tif",
+		#"tair_amp" : "Tair_amp_%s.tif",
+		"wind_24" : os.path.join(os.path.join(input_path, "Wind_IDW/"), "Wind_IDW_24.tif" ),
+		#"wind_inst" : "wind_inst_%s.tif",
+		"watCol_inst" : os.path.join(os.path.join(input_path, "wc_inst/"), "Water_Col_%s.tif" %input_dates),
+		"trans_24" : os.path.join(os.path.join(input_path, "transmissivity_false/"), "transmissivity.tif")
+		} """
 
 		self.parDictOUT = {
 		"vc" : os.path.join(output_path, "vc_%s.tif"),
