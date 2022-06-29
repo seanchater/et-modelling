@@ -6,7 +6,7 @@
     extension
 
 """
-from pyWAPOR.ETLook import constants as c
+import constants as c
 import numpy as np
 
 def air_temperature_celcius(t_air_k):

@@ -6,7 +6,6 @@ import datetime
 from osgeo import gdal
 import matplotlib.pyplot as plt
 import numpy as np
-
 import outputs as out
 import PARAMS as parm
 # import PARAMclip as cparm
@@ -52,8 +51,8 @@ try:
         print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case remove <-nogui> and run again\33[0m)")
         # file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
         # file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
-        file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
-        file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
+        file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
+        file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
         rDate = readDate("dateFormat.csv")
         input_dates = rDate[0][0]
         julian_dates = rDate[0][1]
@@ -80,16 +79,28 @@ except:
     
 print(file_path_in, file_path_out, input_dates) #tst
 
-def clipRast(outName, inRast, ext):
+def clipRast(outName, inRast, ext, reCreate=False):
     '''
     (GDAL raster, GDAL extent)
     '''
-    ras = gdal.Open(inRast)
-    try:
-        gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras)
-        return True
-    except:
-        return False
+    if not reCreate:
+        if not os.path.exists(outName):
+            ras = gdal.Open(inRast)
+            try:
+                gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras)
+                return True
+            except:
+                return False
+        else:
+            return True
+    else:
+        ras = gdal.Open(inRast)
+        try:
+            gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras)
+            return True
+        except:
+            return False
+
 
 def main(date, jdate):
 
@@ -109,65 +120,86 @@ def main(date, jdate):
 
     # read inputs files  ______________________________________________________________________________:
     dest_lst = gdal.Open(par.getClipPathIN("lst"))
-    lst = dest_lst.GetRasterBand(1).ReadAsArray()
-    lst = np.round(lst, 4)
-    lst[lst == -inf] = np.nan
+    lst = dest_lst.GetRasterBand(1)
+    nD = lst.GetNoDataValue()
+    lst = lst.ReadAsArray()
+    lst[lst == nD] = np.nan
     print("LST ", lst, "\nmin: ", np.nanmin(lst), "\nmax: ", np.nanmax(lst)) #tst
 
     dest_albedo = gdal.Open(par.getClipPathIN("albedo"))
-    r0 = dest_albedo.GetRasterBand(1).ReadAsArray()
-    r0 = np.round(r0, 4)
-    r0[r0 == inf] = np.nan
+    r0 = dest_albedo.GetRasterBand(1)
+    nD = r0.GetNoDataValue()
+    r0 = r0.ReadAsArray()
+    r0[r0 == nD] = np.nan
     print("R0 ", r0, "\nmin: ", np.nanmin(r0), "\nmax: ", np.nanmax(r0)) #tst
 
     dest_ndvi = gdal.Open(par.getClipPathIN("ndvi"))
-    ndvi = dest_ndvi.GetRasterBand(1).ReadAsArray()
-    ndvi = np.round(ndvi, 4)
-    ndvi[ndvi == -inf] = np.nan
+    ndvi = dest_ndvi.GetRasterBand(1)
+    nD = ndvi.GetNoDataValue()
+    ndvi = ndvi.ReadAsArray()
+    ndvi[ndvi == nD] = np.nan
     print("NDVI ", ndvi, "\nmin: ", np.nanmin(ndvi), "\nmax: ", np.nanmax(ndvi)) #tst
 
     desttime = gdal.Open(par.getClipPathIN("time"))
-    dtime = desttime.GetRasterBand(1).ReadAsArray()
-    dtime = np.round(dtime, 4)
-    dtime[dtime == -inf] = np.nan
+    dtime = desttime.GetRasterBand(1)
+    nD = dtime.GetNoDataValue()
+    dtime = dtime.ReadAsArray()
+    dtime[dtime == nD] = np.nan
     print("dtime ", dtime, "\nmin: ", np.nanmin(dtime), "\nmax: ", np.nanmax(dtime)) #tst
 
     dest_lat = gdal.Open(par.getClipPathIN("lat"))
-    lat_deg = dest_lat.GetRasterBand(1).ReadAsArray()
+    lat_deg = dest_lat.GetRasterBand(1)
+    nD = lat_deg.GetNoDataValue()
+    lat_deg = lat_deg.ReadAsArray()
+    lat_deg[lat_deg == nD] = np.nan
     print("Lat ", lat_deg, "\nmin: ", np.nanmin(lat_deg), "\nmax: ", np.nanmax(lat_deg)) #tst
 
     dest_lon = gdal.Open(par.getClipPathIN("lon"))
-    lon_deg = dest_lon.GetRasterBand(1).ReadAsArray()
+    lon_deg = dest_lon.GetRasterBand(1)
+    nD = lon_deg.GetNoDataValue()
+    lon_deg = lon_deg.ReadAsArray()
+    lon_deg[lon_deg == nD] = np.nan
     print("Lon ", lon_deg, "\nmin: ", np.nanmin(lon_deg), "\nmax: ", np.nanmax(lon_deg)) #tst
 
     dest_dem = gdal.Open(par.getClipPathIN("dem"))
-    z = dest_dem.GetRasterBand(1).ReadAsArray()
+    z = dest_dem.GetRasterBand(1)
+    nD = z.GetNoDataValue()
+    z = z.ReadAsArray()
     #z[np.isnan(lst)] = np.nan
+    # z[z == nD] = np.nan
     print("Z ", z, "\nmin: ", np.nanmin(z), "\nmax: ", np.nanmax(z)) #tst
 
     dest_slope = gdal.Open(par.getClipPathIN("slope"))
-    slope_deg = dest_slope.GetRasterBand(1).ReadAsArray()
-    # slope_deg = np.round(slope_deg, 5)
-    # slope_deg[slope_deg == inf] = np.nan
+    slope_deg = dest_slope.GetRasterBand(1)
+    nD = slope_deg.GetNoDataValue()
+    slope_deg = slope_deg.ReadAsArray()
+    slope_deg[slope_deg == nD] = np.nan
     print("Slope ", slope_deg, "\nmin: ", np.nanmin(slope_deg), "\nmax: ", np.nanmax(slope_deg)) #tst
 
     dest_aspect = gdal.Open(par.getClipPathIN("aspect"))
-    aspect_deg = dest_aspect.GetRasterBand(1).ReadAsArray()
-    # aspect_deg = np.round(aspect_deg, 8)
-    # aspect_deg[aspect_deg == inf] = np.nan
+    aspect_deg = dest_aspect.GetRasterBand(1)
+    nD = aspect_deg.GetNoDataValue()
+    aspect_deg = aspect_deg.ReadAsArray()
+    aspect_deg[aspect_deg == nD] = np.nan
     print("Aspect ", aspect_deg, "\nmin: ", np.nanmin(aspect_deg), "\nmax: ", np.nanmax(aspect_deg)) #tst
 
     dest_lm = gdal.Open(par.getClipPathIN("landMask"))
-    land_mask = dest_lm.GetRasterBand(1).ReadAsArray()
-    #land_mask[np.isnan(lst)] = np.nan
+    land_mask = dest_lm.GetRasterBand(1)
+    nD = land_mask.GetNoDataValue()
+    land_mask = land_mask.ReadAsArray()
+    # land_mask[np.isnan(lst)] = np.nan
+    # land_mask[land_mask == nD] = np.nan
     print("LandMask ", land_mask, "\nmin: ", np.nanmin(land_mask), "\nmax: ", np.nanmax(land_mask)) #tst
 
     #dest_bulk = gdal.Open(par.getClipPathIN("bulk"))
     #bulk = dest_bulk.GetRasterBand(1).ReadAsArray()
 
     dest_maxobs = gdal.Open(par.getClipPathIN("maxObs"))
-    z_obst_max = dest_maxobs.GetRasterBand(1).ReadAsArray()
+    z_obst_max = dest_maxobs.GetRasterBand(1)
+    nD = z_obst_max.GetNoDataValue()
+    z_obst_max = z_obst_max.ReadAsArray()
     #z_obst_max[np.isnan(lst)] = np.nan
+    # z_obst_max[z_obst_max == nD] = np.nan
     print("ZobsMax ", z_obst_max, "\nmin: ", np.nanmin(z_obst_max), "\nmax: ", np.nanmax(z_obst_max)) #tst
 
     """ dest_pairsea24 = gdal.Open(par.getClipPathIN("pair_24_0"))
@@ -219,20 +251,32 @@ def main(date, jdate):
     t_amp_year[np.isnan(lst)] = np.nan
     """
     dest_wind24 = gdal.Open(par.getClipPathIN("wind_24"))
-    u_24 = dest_wind24.GetRasterBand(1).ReadAsArray()
-    u_24[np.isnan(lst)] = np.nan
+    u_24 = dest_wind24.GetRasterBand(1)
+    nD = u_24.GetNoDataValue()
+    u_24 = u_24.ReadAsArray()
+    # u_24[np.isnan(lst)] = np.nan
+    # u_24[u_24 == nD] = np.nan
 
     dest_windinst = gdal.Open(par.getClipPathIN("wind_inst"))
-    u_i = dest_windinst.GetRasterBand(1).ReadAsArray()
-    u_i[np.isnan(lst)] = np.nan
+    u_i = dest_windinst.GetRasterBand(1)
+    nD = u_i.GetNoDataValue()
+    u_i = u_i.ReadAsArray()
+    # u_i[np.isnan(lst)] = np.nan
+    # u_24[u_24 == nD] = np.nan
 
     dest_watcol = gdal.Open(par.getClipPathIN("watCol_inst"))
-    wv_i = dest_watcol.GetRasterBand(1).ReadAsArray()
-    wv_i[np.isnan(lst)] = np.nan
+    wv_i = dest_watcol.GetRasterBand(1)
+    nD = wv_i.GetNoDataValue()
+    wv_i = wv_i.ReadAsArray()
+    # wv_i[np.isnan(lst)] = np.nan
+    # u_24[u_24 == nD] = np.nan
 
     dest_trans = gdal.Open(par.getClipPathIN("trans_24"))
-    trans_24 = dest_trans.GetRasterBand(1).ReadAsArray()
+    trans_24 = dest_trans.GetRasterBand(1)
+    nD = trans_24.GetNoDataValue()
+    trans_24 = trans_24.ReadAsArray()
     #trans_24[np.isnan(lst)] = np.nan
+    # u_24[u_24 == nD] = np.nan
     print("Trans24 ", trans_24, "\nmin: ", np.nanmin(trans_24), "\nmax: ", np.nanmax(trans_24)) #tst
 
 	# define output filepaths
