@@ -81,7 +81,8 @@ print(file_path_in, file_path_out, input_dates) #tst
 
 def clipRast(outName, inRast, ext, reCreate=False):
     '''
-    (GDAL raster, GDAL extent)
+    (rasterOut, rasterToClip, extent, save over)
+    [path, path, path, bool]
     '''
     if not reCreate:
         if not os.path.exists(outName):
@@ -110,7 +111,7 @@ def main(date, jdate):
     print(par.getFilePathIN("time")) #tst
 
     # clip inputs files  ______________________________________________________________________________:
-    print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent())
+    print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent()) #tst
     for i in par.getKeysIN():
         print(i, end=' -')
         if clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent()):
