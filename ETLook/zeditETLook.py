@@ -9,6 +9,7 @@ import numpy as np
 
 import outputs as out
 import PARAMS as parm
+# import PARAMclip as cparm
 import tkinter as tk
 from tkinter import filedialog
 import csv
@@ -42,6 +43,7 @@ def readDate(dfile):
                 year = in_
     return input_dates, julian_dates, year
 
+
 ## Setting file path parameters   _________________________________________________________________:
 try:
     #print(sys.argv[1]) #tst
@@ -73,140 +75,160 @@ except:
     
 print(file_path_in, file_path_out, input_dates) #tst
 
+def clipRast(outName, inRast, ext):
+    '''
+    (GDAL raster, GDAL extent)
+    '''
+    ras = gdal.Open(inRast)
+    try:
+        gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras)
+        return True
+    except:
+        return False
+
 def main(date, jdate):
 
     # define input files ______________________________________________________________________________:
     par = parm.PARAMS(file_path_in, file_path_out, date) #[0] <-should be able to handle any range a.t.m
+    # clipPar = cparm.PARAMclip()
     print(par.getFilePathIN("time")) #tst
 
+    # clip inputs files  ______________________________________________________________________________:
+    print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent())
+    for i in par.getKeysIN():
+        print(i, end=' -')
+        if clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent()):
+            print('done')
+        else:
+            print('failed')
 
     # read inputs files  ______________________________________________________________________________:
-    dest_lst = gdal.Open(par.getFilePathIN("lst"))
+    dest_lst = gdal.Open(par.getClipPathIN("lst"))
     lst = dest_lst.GetRasterBand(1).ReadAsArray()
     lst = np.round(lst, 4)
     lst[lst == -inf] = np.nan
     print("LST ", lst, "\nmin: ", np.nanmin(lst), "\nmax: ", np.nanmax(lst)) #tst
 
-    dest_albedo = gdal.Open(par.getFilePathIN("albedo"))
+    dest_albedo = gdal.Open(par.getClipPathIN("albedo"))
     r0 = dest_albedo.GetRasterBand(1).ReadAsArray()
     r0 = np.round(r0, 4)
     r0[r0 == inf] = np.nan
     print("R0 ", r0, "\nmin: ", np.nanmin(r0), "\nmax: ", np.nanmax(r0)) #tst
 
-    dest_ndvi = gdal.Open(par.getFilePathIN("ndvi"))
+    dest_ndvi = gdal.Open(par.getClipPathIN("ndvi"))
     ndvi = dest_ndvi.GetRasterBand(1).ReadAsArray()
     ndvi = np.round(ndvi, 4)
     ndvi[ndvi == -inf] = np.nan
     print("NDVI ", ndvi, "\nmin: ", np.nanmin(ndvi), "\nmax: ", np.nanmax(ndvi)) #tst
 
-    desttime = gdal.Open(par.getFilePathIN("time"))
+    desttime = gdal.Open(par.getClipPathIN("time"))
     dtime = desttime.GetRasterBand(1).ReadAsArray()
     dtime = np.round(dtime, 4)
     dtime[dtime == -inf] = np.nan
     print("dtime ", dtime, "\nmin: ", np.nanmin(dtime), "\nmax: ", np.nanmax(dtime)) #tst
 
-    dest_lat = gdal.Open(par.getFilePathIN("lat"))
+    dest_lat = gdal.Open(par.getClipPathIN("lat"))
     lat_deg = dest_lat.GetRasterBand(1).ReadAsArray()
-    print("Lat ", lat_deg, "\nmin: ", np.nanmin(lat_deg), "\nmax: ", np.nanmax(lat_deg))
+    print("Lat ", lat_deg, "\nmin: ", np.nanmin(lat_deg), "\nmax: ", np.nanmax(lat_deg)) #tst
 
-    dest_lon = gdal.Open(par.getFilePathIN("lon"))
+    dest_lon = gdal.Open(par.getClipPathIN("lon"))
     lon_deg = dest_lon.GetRasterBand(1).ReadAsArray()
-    print("Lon ", lon_deg, "\nmin: ", np.nanmin(lon_deg), "\nmax: ", np.nanmax(lon_deg))
+    print("Lon ", lon_deg, "\nmin: ", np.nanmin(lon_deg), "\nmax: ", np.nanmax(lon_deg)) #tst
 
-    dest_dem = gdal.Open(par.getFilePathIN("dem"))
+    dest_dem = gdal.Open(par.getClipPathIN("dem"))
     z = dest_dem.GetRasterBand(1).ReadAsArray()
     #z[np.isnan(lst)] = np.nan
-    print("Z ", z, "\nmin: ", np.nanmin(z), "\nmax: ", np.nanmax(z))
+    print("Z ", z, "\nmin: ", np.nanmin(z), "\nmax: ", np.nanmax(z)) #tst
 
-    dest_slope = gdal.Open(par.getFilePathIN("slope"))
+    dest_slope = gdal.Open(par.getClipPathIN("slope"))
     slope_deg = dest_slope.GetRasterBand(1).ReadAsArray()
     # slope_deg = np.round(slope_deg, 5)
     # slope_deg[slope_deg == inf] = np.nan
-    print("Slope ", slope_deg, "\nmin: ", np.nanmin(slope_deg), "\nmax: ", np.nanmax(slope_deg))
+    print("Slope ", slope_deg, "\nmin: ", np.nanmin(slope_deg), "\nmax: ", np.nanmax(slope_deg)) #tst
 
-    dest_aspect = gdal.Open(par.getFilePathIN("aspect"))
+    dest_aspect = gdal.Open(par.getClipPathIN("aspect"))
     aspect_deg = dest_aspect.GetRasterBand(1).ReadAsArray()
     # aspect_deg = np.round(aspect_deg, 8)
     # aspect_deg[aspect_deg == inf] = np.nan
-    print("Aspect ", aspect_deg, "\nmin: ", np.nanmin(aspect_deg), "\nmax: ", np.nanmax(aspect_deg))
+    print("Aspect ", aspect_deg, "\nmin: ", np.nanmin(aspect_deg), "\nmax: ", np.nanmax(aspect_deg)) #tst
 
-    dest_lm = gdal.Open(par.getFilePathIN("landMask"))
+    dest_lm = gdal.Open(par.getClipPathIN("landMask"))
     land_mask = dest_lm.GetRasterBand(1).ReadAsArray()
     #land_mask[np.isnan(lst)] = np.nan
-    print("LandMask ", land_mask, "\nmin: ", np.nanmin(land_mask), "\nmax: ", np.nanmax(land_mask))
+    print("LandMask ", land_mask, "\nmin: ", np.nanmin(land_mask), "\nmax: ", np.nanmax(land_mask)) #tst
 
-    #dest_bulk = gdal.Open(par.getFilePathIN("bulk"))
+    #dest_bulk = gdal.Open(par.getClipPathIN("bulk"))
     #bulk = dest_bulk.GetRasterBand(1).ReadAsArray()
 
-    dest_maxobs = gdal.Open(par.getFilePathIN("maxObs"))
+    dest_maxobs = gdal.Open(par.getClipPathIN("maxObs"))
     z_obst_max = dest_maxobs.GetRasterBand(1).ReadAsArray()
     #z_obst_max[np.isnan(lst)] = np.nan
-    print("ZobsMax ", z_obst_max, "\nmin: ", np.nanmin(z_obst_max), "\nmax: ", np.nanmax(z_obst_max))
+    print("ZobsMax ", z_obst_max, "\nmin: ", np.nanmin(z_obst_max), "\nmax: ", np.nanmax(z_obst_max)) #tst
 
-    """ dest_pairsea24 = gdal.Open(par.getFilePathIN("pair_24_0"))
+    """ dest_pairsea24 = gdal.Open(par.getClipPathIN("pair_24_0"))
     p_air_0_24 = dest_pairsea24.GetRasterBand(1).ReadAsArray()
     p_air_0_24 = ETLook.meteo.air_pressure_kpa2mbar(p_air_0_24)
     p_air_0_24[np.isnan(lst)] = np.nan
 
-    dest_pairseainst = gdal.Open(par.getFilePathIN("pair_inst_0"))
+    dest_pairseainst = gdal.Open(par.getClipPathIN("pair_inst_0"))
     p_air_0_i = dest_pairseainst.GetRasterBand(1).ReadAsArray()
     p_air_0_i = ETLook.meteo.air_pressure_kpa2mbar(p_air_0_i)
     p_air_0_i[np.isnan(lst)] = np.nan
 
-    dest_pairinst = gdal.Open(par.getFilePathIN("pair_inst"))
+    dest_pairinst = gdal.Open(par.getClipPathIN("pair_inst"))
     p_air_i = dest_pairinst.GetRasterBand(1).ReadAsArray()
     p_air_i = ETLook.meteo.air_pressure_kpa2mbar(p_air_i)
     p_air_i[np.isnan(lst)] = np.nan
 
-    dest_precip = gdal.Open(par.getFilePathIN("pre"))
+    dest_precip = gdal.Open(par.getClipPathIN("pre"))
     P_24 = dest_precip.GetRasterBand(1).ReadAsArray()
     P_24[np.isnan(lst)] = np.nan
 
-    dest_hum24 = gdal.Open(par.getFilePathIN("hum_24"))
+    dest_hum24 = gdal.Open(par.getClipPathIN("hum_24"))
     qv_24 = dest_hum24.GetRasterBand(1).ReadAsArray()
     qv_24[np.isnan(lst)] = np.nan
 
-    dest_huminst = gdal.Open(par.getFilePathIN("hum_inst"))
+    dest_huminst = gdal.Open(par.getClipPathIN("hum_inst"))
     qv_i = dest_huminst.GetRasterBand(1).ReadAsArray()
     qv_i[np.isnan(lst)] = np.nan
 
-    dest_tair24 = gdal.Open(par.getFilePathIN("tair_24"))
+    dest_tair24 = gdal.Open(par.getClipPathIN("tair_24"))
     t_air_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
     #t_air_24 = ETLook.meteo.disaggregate_air_temperature_daily(t_air_24_coarse, z, z_coarse, lapse)
     t_air_24[np.isnan(lst)] = np.nan
 
-    dest_tair24 = gdal.Open(par.getFilePathIN("tair_max_24"))
+    dest_tair24 = gdal.Open(par.getClipPathIN("tair_max_24"))
     t_air_max_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
     t_air_max_24[np.isnan(lst)] = np.nan
 
-    dest_tair24 = gdal.Open(par.getFilePathIN("tair_min_24"))
+    dest_tair24 = gdal.Open(par.getClipPathIN("tair_min_24"))
     t_air_min_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
     t_air_min_24[np.isnan(lst)] = np.nan
 
-    dest_tairinst = gdal.Open(par.getFilePathIN("tair_inst"))
+    dest_tairinst = gdal.Open(par.getClipPathIN("tair_inst"))
     t_air_i = dest_tairinst.GetRasterBand(1).ReadAsArray()
     t_air_i[np.isnan(lst)] = np.nan
 
-    dest_tairamp = gdal.Open(par.getFilePathIN("tair_amp"))
+    dest_tairamp = gdal.Open(par.getClipPathIN("tair_amp"))
     t_amp_year = dest_tairamp.GetRasterBand(1).ReadAsArray()
     t_amp_year[np.isnan(lst)] = np.nan
 
-    dest_wind24 = gdal.Open(par.getFilePathIN("wind_24"))
+    dest_wind24 = gdal.Open(par.getClipPathIN("wind_24"))
     u_24 = dest_wind24.GetRasterBand(1).ReadAsArray()
     u_24[np.isnan(lst)] = np.nan
 
-    dest_windinst = gdal.Open(par.getFilePathIN("wind_inst"))
+    dest_windinst = gdal.Open(par.getClipPathIN("wind_inst"))
     u_i = dest_windinst.GetRasterBand(1).ReadAsArray()
     u_i[np.isnan(lst)] = np.nan
 
-    dest_watcol = gdal.Open(par.getFilePathIN("watCol_inst"))
+    dest_watcol = gdal.Open(par.getClipPathIN("watCol_inst"))
     wv_i = dest_watcol.GetRasterBand(1).ReadAsArray()
     wv_i[np.isnan(lst)] = np.nan """
 
-    dest_trans = gdal.Open(par.getFilePathIN("trans_24"))
+    dest_trans = gdal.Open(par.getClipPathIN("trans_24"))
     trans_24 = dest_trans.GetRasterBand(1).ReadAsArray()
     #trans_24[np.isnan(lst)] = np.nan
-    print("Trans24 ", trans_24, "\nmin: ", np.nanmin(trans_24), "\nmax: ", np.nanmax(trans_24))
+    print("Trans24 ", trans_24, "\nmin: ", np.nanmin(trans_24), "\nmax: ", np.nanmax(trans_24)) #tst
 
 	# define output filepaths
     # par_out = parm.PARAMS(file_path_out, date)
