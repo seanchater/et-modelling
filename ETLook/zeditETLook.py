@@ -89,18 +89,18 @@ def clipRast(outName, inRast, ext, reCreate=False):
             ras = gdal.Open(inRast)
             try:
                 gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras)
-                return True
+                return [True, "Clipped Successfully"]
             except:
-                return False
+                return [False, "Could not Clip..."]
         else:
-            return True
+            return [True, "Clip Exists"]
     else:
         ras = gdal.Open(inRast)
         try:
             gdal.Warp(outName, ras, cutlineDSName=ext, cropToCutline=ras)
-            return True
+            return [True, "Clipped Successfully"]
         except:
-            return False
+            return [False, "Could not Clip..."]
 
 
 def main(date, jdate):
@@ -113,11 +113,12 @@ def main(date, jdate):
     # clip inputs files  ______________________________________________________________________________:
     print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent()) #tst
     for i in par.getKeysIN():
-        print(i, end=' -')
-        if clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent()):
-            print('done')
+        print(f'{i : >8}', end=' - ')
+        state = clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent())
+        if state[0]:
+            print(f'{"done" : <7} : {state[1]}')
         else:
-            print('failed')
+            print(f'{"failed" : <7} : {state[1]}')
 
     # read inputs files  ______________________________________________________________________________:
     dest_lst = gdal.Open(par.getClipPathIN("lst"))
