@@ -48,8 +48,10 @@ try:
     sys.argv[1]
     if sys.argv.__contains__("-nogui"):
         print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case remove <-nogui> and run again\33[0m)")
-        file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
-        file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
+        # file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
+        # file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
+        file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
+        file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
         rDate = readDate("dateFormat.csv")
         input_dates = rDate[0][0]
         julian_dates = rDate[0][1]
@@ -69,6 +71,9 @@ except:
     file_path_in = filedialog.askdirectory(title="Please Select Input Folder")
     file_path_out = filedialog.askdirectory(title="Please Select Output Folder")
     input_dates = readDate("dateFormat.csv")
+    print("\n\n input dates \n\n")
+    print(input_dates)
+    print("\n\n")
     
     
 print(file_path_in, file_path_out, input_dates) #tst
@@ -143,9 +148,9 @@ def main(date, jdate):
     #z_obst_max[np.isnan(lst)] = np.nan
     print("ZobsMax ", z_obst_max, "\nmin: ", np.nanmin(z_obst_max), "\nmax: ", np.nanmax(z_obst_max))
 
-    """ dest_pairsea24 = gdal.Open(par.getFilePathIN("pair_24_0"))
+    dest_pairsea24 = gdal.Open(par.getFilePathIN("pair_24_0"))
     p_air_0_24 = dest_pairsea24.GetRasterBand(1).ReadAsArray()
-    p_air_0_24 = ETLook.meteo.air_pressure_kpa2mbar(p_air_0_24)
+    p_air_0_24 = meteo.air_pressure_kpa2mbar(p_air_0_24)
     p_air_0_24[np.isnan(lst)] = np.nan
 
     dest_pairseainst = gdal.Open(par.getFilePathIN("pair_inst_0"))
@@ -153,44 +158,46 @@ def main(date, jdate):
     p_air_0_i = ETLook.meteo.air_pressure_kpa2mbar(p_air_0_i)
     p_air_0_i[np.isnan(lst)] = np.nan
 
-    dest_pairinst = gdal.Open(par.getFilePathIN("pair_inst"))
-    p_air_i = dest_pairinst.GetRasterBand(1).ReadAsArray()
-    p_air_i = ETLook.meteo.air_pressure_kpa2mbar(p_air_i)
-    p_air_i[np.isnan(lst)] = np.nan
 
-    dest_precip = gdal.Open(par.getFilePathIN("pre"))
-    P_24 = dest_precip.GetRasterBand(1).ReadAsArray()
-    P_24[np.isnan(lst)] = np.nan
+    # dest_pairinst = gdal.Open(par.getFilePathIN("pair_inst"))
+    # p_air_i = dest_pairinst.GetRasterBand(1).ReadAsArray()
+    # p_air_i = ETLook.meteo.air_pressure_kpa2mbar(p_air_i)
+    # p_air_i[np.isnan(lst)] = np.nan
+
+    # dest_precip = gdal.Open(par.getFilePathIN("pre"))
+    # P_24 = dest_precip.GetRasterBand(1).ReadAsArray()
+    # P_24[np.isnan(lst)] = np.nan
 
     dest_hum24 = gdal.Open(par.getFilePathIN("hum_24"))
     qv_24 = dest_hum24.GetRasterBand(1).ReadAsArray()
-    qv_24[np.isnan(lst)] = np.nan
+    # qv_24[np.isnan(lst)] = np.nan
 
-    dest_huminst = gdal.Open(par.getFilePathIN("hum_inst"))
-    qv_i = dest_huminst.GetRasterBand(1).ReadAsArray()
-    qv_i[np.isnan(lst)] = np.nan
+    # dest_huminst = gdal.Open(par.getFilePathIN("hum_inst"))
+    # qv_i = dest_huminst.GetRasterBand(1).ReadAsArray()
+    # qv_i[np.isnan(lst)] = np.nan
 
     dest_tair24 = gdal.Open(par.getFilePathIN("tair_24"))
     t_air_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
     #t_air_24 = ETLook.meteo.disaggregate_air_temperature_daily(t_air_24_coarse, z, z_coarse, lapse)
-    t_air_24[np.isnan(lst)] = np.nan
+    # t_air_24[np.isnan(lst)] = np.nan
 
-    dest_tair24 = gdal.Open(par.getFilePathIN("tair_max_24"))
-    t_air_max_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
-    t_air_max_24[np.isnan(lst)] = np.nan
+    # dest_tair24 = gdal.Open(par.getFilePathIN("tair_max_24"))
+    # t_air_max_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
+    # t_air_max_24[np.isnan(lst)] = np.nan
 
-    dest_tair24 = gdal.Open(par.getFilePathIN("tair_min_24"))
-    t_air_min_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
-    t_air_min_24[np.isnan(lst)] = np.nan
+    # dest_tair24 = gdal.Open(par.getFilePathIN("tair_min_24"))
+    # t_air_min_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
+    # t_air_min_24[np.isnan(lst)] = np.nan
 
     dest_tairinst = gdal.Open(par.getFilePathIN("tair_inst"))
     t_air_i = dest_tairinst.GetRasterBand(1).ReadAsArray()
-    t_air_i[np.isnan(lst)] = np.nan
+    # t_air_i[np.isnan(lst)] = np.nan
 
-    dest_tairamp = gdal.Open(par.getFilePathIN("tair_amp"))
-    t_amp_year = dest_tairamp.GetRasterBand(1).ReadAsArray()
-    t_amp_year[np.isnan(lst)] = np.nan
+    # dest_tairamp = gdal.Open(par.getFilePathIN("tair_amp"))
+    # t_amp_year = dest_tairamp.GetRasterBand(1).ReadAsArray()
+    # t_amp_year[np.isnan(lst)] = np.nan
 
+    """
     dest_wind24 = gdal.Open(par.getFilePathIN("wind_24"))
     u_24 = dest_wind24.GetRasterBand(1).ReadAsArray()
     u_24[np.isnan(lst)] = np.nan
@@ -347,6 +354,21 @@ def main(date, jdate):
     print(lat)
     print(slope)
     print(aspect)
+
+    print("\n\ncalc ra_24_toa\n\n")
+    # print("sc: " + str(type(sc)))
+    print("decl: " + str(type(decl)))
+    print("\tndim: ", str(decl.ndim))
+    print("\tshape: ", str(decl.shape))
+    # print("iesd: " + str(type(iesd)))
+    print("lat: " + str(type(lat)))
+    print("\tndim: ", str(lat.ndim))
+    print("\tshape: ", str(lat.shape))
+    
+    print("slope: " + str(type(slope)))
+    print("\tndim: ", str(slope.ndim))
+    print("\tshape: ", str(slope.shape))
+    # print("aspect: " + str(type(aspect)))
 
     ra_24_toa = solar_radiation.daily_solar_radiation_toa(sc, decl, iesd, lat, slope, aspect)
     ws = solar_radiation.sunset_hour_angle(lat, decl)
