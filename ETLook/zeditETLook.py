@@ -146,15 +146,14 @@ def main(date, jdate):
     print(par.getFilePathIN("time")) #tst
 
     # clip inputs files  ______________________________________________________________________________:
-    # HACK: changed all clip path things to inputpath to test if clipping is an issue
-    # print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent()) #tst
-    # for i in par.getKeysIN():
-    #     print(f'{i : >14}', end=' - ')
-    #     state = clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent())
-    #     if state[0]:
-    #         print(f'{"done" : <7} : {state[1]}')
-    #     else:
-    #         print(f'{"failed" : <7} : {state[1]}')
+    print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent()) #tst
+    for i in par.getKeysIN():
+        print(f'{i : >14}', end=' - ')
+        state = clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent())
+        if state[0]:
+            print(f'{"done" : <7} : {state[1]}')
+        else:
+            print(f'{"failed" : <7} : {state[1]}')
 
     # read inputs files  ______________________________________________________________________________:
     dest_lst = gdal.Open(par.getClipPathIN("lst"))
