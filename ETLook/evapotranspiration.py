@@ -58,7 +58,8 @@ def interception_mm(P_24, vc, lai, int_max=0.2):
 
 
     """
-    zero_mask = np.logical_or.reduce((lai == 0, vc == 0, P_24 == 0))
+    # HACK added the .all() becuase was getting a value error
+    zero_mask = np.logical_or.reduce(((lai == 0).all(), (vc == 0).all(), (P_24 == 0).all()))
 
     res = int_max * lai * (1 - (1 / (1 + ((vc * P_24) / (int_max * lai)))))
 

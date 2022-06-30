@@ -15,6 +15,7 @@ import csv
 import math
 import zeditETLook, solar_radiation, clear_sky_radiation, meteo, radiation, evapotranspiration, soil_moisture, leaf, stress, resistance, roughness, neutral, unstable, outputs
 # from Functions import Processing_Functions as PF
+import misc
 
 current = os.path.dirname(os.path.realpath(__file__))
 etModel = os.path.dirname(current)
@@ -228,8 +229,8 @@ def main(date, jdate):
     # land_mask[land_mask == nD] = np.nan
     # print("LandMask ", land_mask, "\nmin: ", np.nanmin(land_mask), "\nmax: ", np.nanmax(land_mask)) #tst
 
-    #dest_bulk = gdal.Open(par.getClipPathIN("bulk"))
-    #bulk = dest_bulk.GetRasterBand(1).ReadAsArray()
+    # dest_bulk = gdal.Open(par.getClipPathIN("bulk"))
+    # bulk = dest_bulk.GetRasterBand(1).ReadAsArray()
 
     dest_maxobs = gdal.Open(par.getClipPathIN("maxObs"))
     z_obst_max = dest_maxobs.GetRasterBand(1)
@@ -239,23 +240,28 @@ def main(date, jdate):
     # z_obst_max[z_obst_max == nD] = np.nan
     # print("ZobsMax ", z_obst_max, "\nmin: ", np.nanmin(z_obst_max), "\nmax: ", np.nanmax(z_obst_max)) #tst
 
-    dest_pairsea24 = gdal.Open(par.getClipPathIN("pair_24_0"))
+    # HACK using original raster not clipped version
+    dest_pairsea24 = gdal.Open(par.getFilePathIN("pair_24_0"))
     p_air_0_24 = dest_pairsea24.GetRasterBand(1).ReadAsArray()
     p_air_0_24 = meteo.air_pressure_kpa2mbar(p_air_0_24)
     # p_air_0_24[np.isnan(lst)] = np.nan
 
-    dest_pairseainst = gdal.Open(par.getClipPathIN("pair_inst_0"))
+    # HACK using original raster not clipped version
+    dest_pairseainst = gdal.Open(par.getFilePathIN("pair_inst_0"))
     p_air_0_i = dest_pairseainst.GetRasterBand(1).ReadAsArray()
     p_air_0_i = meteo.air_pressure_kpa2mbar(p_air_0_i)
     # p_air_0_i[np.isnan(lst)] = np.nan
 
-    # TODO : currently using sea level pressure 
-    dest_pairinst = gdal.Open(par.getClipPathIN("pair_inst_0"))
+    # HACK : using original raster not clipped version
+    # AND 
+    # TODO : currently using sea level pressure  not the other version
+    dest_pairinst = gdal.Open(par.getFilePathIN("pair_inst_0"))
     p_air_i = dest_pairinst.GetRasterBand(1).ReadAsArray()
     p_air_i = meteo.air_pressure_kpa2mbar(p_air_i)
     # p_air_i[np.isnan(lst)] = np.nan
 
-    dest_precip = gdal.Open(par.getClipPathIN("pre"))
+    # HACK using original raster not clipped version
+    dest_precip = gdal.Open(par.getFilePathIN("pre"))
     P_24 = dest_precip.GetRasterBand(1).ReadAsArray()
     # P_24[np.isnan(lst)] = np.nan
 
@@ -467,18 +473,6 @@ def main(date, jdate):
     #ra_24 = ETLook.solar_radiation.daily_solar_radiation_flat(ra_24_toa_flat, trans_24)
     ra_24 = solar_radiation.daily_total_solar_radiation(ra_24_toa, ra_24_toa_flat, diffusion_index, trans_24)
     stress_rad = stress.stress_radiation(ra_24)
-
-    # TODO
-    print("\n\ncalc ra_24_toa\n\n")
-
-    print("z: " + str(type(z)))
-    print("\tndim: ", str(z.ndim))
-    print("\tshape: ", str(z.shape))
-
-    print("p_air_0_24: " + str(type(p_air_0_24)))
-    print("\tndim: ", str(p_air_0_24.ndim))
-    print("\tshape: ", str(p_air_0_24.shape))
-
     p_air_24 = meteo.air_pressure_daily(z, p_air_0_24)
     vp_24 = meteo.vapour_pressure_from_specific_humidity_daily(qv_24, p_air_24)
     svp_24 = meteo.saturated_vapour_pressure_average(
