@@ -1,6 +1,12 @@
 class PARAMS:
 	def __init__(self, input_path, output_path, input_dates:None):
 
+		"""
+		Setting up file paths for use in code, takes: 
+		(path to input data directory: str, path to output data directory: str, optional: date range format: str)
+		returns --> class
+		"""
+
 		import os
 
 		self.extent =  os.path.join(os.path.join(input_path, "Extent/"), "extent.shp")

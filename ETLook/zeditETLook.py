@@ -2,20 +2,17 @@ from cmath import inf
 import os
 import sys
 import json
-# from osgeo import osr
+from time import sleep
 from osgeo import gdal
 import matplotlib.pyplot as plt
 import numpy as np
 import outputs as out
 import PARAMS as parm
-# import PARAMclip as cparm
 import tkinter as tk
 from tkinter import filedialog
 import csv
 import math
 import zeditETLook, solar_radiation, clear_sky_radiation, meteo, radiation, evapotranspiration, soil_moisture, leaf, stress, resistance, roughness, neutral, unstable, outputs
-# from Functions import Processing_Functions as PF
-import misc
 
 current = os.path.dirname(os.path.realpath(__file__))
 etModel = os.path.dirname(current)
@@ -23,8 +20,6 @@ sys.path.append(etModel)
 import Functions as PF
 parent = os.path.dirname(etModel)
 print(etModel, parent) #tst
-
-#np.set_printoptions(suppress=True)
 
 file_path_in = ""
 file_path_out = ""
@@ -52,6 +47,10 @@ def readDate(dfile):
 
 
 def stripDate(rDate):
+    """
+    Strips a dictionary to (input dates: arr, julian dates: arr, year: str)
+    sets --> global vars
+    """
     global input_dates
     global julian_dates
     global year
@@ -62,7 +61,6 @@ def stripDate(rDate):
 
 ## Setting file path parameters   _________________________________________________________________:
 try:
-    #print(sys.argv[1]) #tst
     sys.argv[1]    
     if sys.argv.__contains__("-lst"):
         print("\n\tUsing path list...")
@@ -95,22 +93,14 @@ try:
 
 except:
     print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case use the -gui argument\33[0m)")
-    # file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
-    # file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
-    file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
-    file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
-    # rDate = readDate("dateFormat.csv")
     file_path_in = os.path.join(parent, "Data/input_data")
     file_path_out = os.path.join(parent, "Data/output")
     rDate = readDate(os.path.join(parent, "et-modelling/ETLook/dateFormat.csv"))
-    stripDate(rDate)
-
-    """ print("\n\n input dates \n\n")
-    print(input_dates)
-    print("\n\n") """
+    stripDate(rDate) 
     
-    
-print(file_path_in, file_path_out, input_dates) #tst
+print("Input Directory  - ", file_path_in, "\nOutput Directory - ", file_path_out, "\nDate-Range CSV   - ",input_dates)
+sleep(4)
+os.system('cls')
 
 ## Clipping rasters to shapefile extent   _________________________________________________________:
 def clipRast(outName, inRast, ext, reCreate=False):
@@ -143,8 +133,6 @@ def main(date, jdate):
 
     # define input files ______________________________________________________________________________:
     par = parm.PARAMS(file_path_in, file_path_out, date) #[0] <-should be able to handle any range a.t.m
-    # clipPar = cparm.PARAMclip()
-    print(par.getFilePathIN("time")) #tst
 
     # clip inputs files  ______________________________________________________________________________:
     print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent()) #tst
@@ -155,6 +143,7 @@ def main(date, jdate):
             print(f'{"done" : <7} : {state[1]}')
         else:
             print(f'{"failed" : <7} : {state[1]}')
+    sleep(2)
 
     # read inputs files  ______________________________________________________________________________:
     dest_lst = gdal.Open(par.getClipPathIN("lst"))
@@ -162,72 +151,59 @@ def main(date, jdate):
     nD = lst.GetNoDataValue()
     lst = lst.ReadAsArray()
     lst[lst == nD] = np.nan
-    # print("LST ", lst, "\nmin: ", np.nanmin(lst), "\nmax: ", np.nanmax(lst)) #tst
 
     dest_albedo = gdal.Open(par.getClipPathIN("albedo"))
     r0 = dest_albedo.GetRasterBand(1)
     nD = r0.GetNoDataValue()
     r0 = r0.ReadAsArray()
     r0[r0 == nD] = np.nan
-    # print("R0 ", r0, "\nmin: ", np.nanmin(r0), "\nmax: ", np.nanmax(r0)) #tst
 
     dest_ndvi = gdal.Open(par.getClipPathIN("ndvi"))
     ndvi = dest_ndvi.GetRasterBand(1)
     nD = ndvi.GetNoDataValue()
     ndvi = ndvi.ReadAsArray()
     ndvi[ndvi == nD] = np.nan
-    # print("NDVI ", ndvi, "\nmin: ", np.nanmin(ndvi), "\nmax: ", np.nanmax(ndvi)) #tst
 
     desttime = gdal.Open(par.getClipPathIN("time"))
     dtime = desttime.GetRasterBand(1)
     nD = dtime.GetNoDataValue()
     dtime = dtime.ReadAsArray()
     dtime[dtime == nD] = np.nan
-    # print("dtime ", dtime, "\nmin: ", np.nanmin(dtime), "\nmax: ", np.nanmax(dtime)) #tst
 
     dest_lat = gdal.Open(par.getClipPathIN("lat"))
     lat_deg = dest_lat.GetRasterBand(1)
     nD = lat_deg.GetNoDataValue()
     lat_deg = lat_deg.ReadAsArray()
     lat_deg[lat_deg == nD] = np.nan
-    # print("Lat ", lat_deg, "\nmin: ", np.nanmin(lat_deg), "\nmax: ", np.nanmax(lat_deg)) #tst
 
     dest_lon = gdal.Open(par.getClipPathIN("lon"))
     lon_deg = dest_lon.GetRasterBand(1)
     nD = lon_deg.GetNoDataValue()
     lon_deg = lon_deg.ReadAsArray()
     lon_deg[lon_deg == nD] = np.nan
-    # print("Lon ", lon_deg, "\nmin: ", np.nanmin(lon_deg), "\nmax: ", np.nanmax(lon_deg)) #tst
 
     dest_dem = gdal.Open(par.getClipPathIN("dem"))
     z = dest_dem.GetRasterBand(1)
     nD = z.GetNoDataValue()
     z = z.ReadAsArray()
-    #z[np.isnan(lst)] = np.nan
-    # z[z == nD] = np.nan
-    # print("Z ", z, "\nmin: ", np.nanmin(z), "\nmax: ", np.nanmax(z)) #tst
+
 
     dest_slope = gdal.Open(par.getClipPathIN("slope"))
     slope_deg = dest_slope.GetRasterBand(1)
     nD = slope_deg.GetNoDataValue()
     slope_deg = slope_deg.ReadAsArray()
     slope_deg[slope_deg == nD] = np.nan
-    # print("Slope ", slope_deg, "\nmin: ", np.nanmin(slope_deg), "\nmax: ", np.nanmax(slope_deg)) #tst
 
     dest_aspect = gdal.Open(par.getClipPathIN("aspect"))
     aspect_deg = dest_aspect.GetRasterBand(1)
     nD = aspect_deg.GetNoDataValue()
     aspect_deg = aspect_deg.ReadAsArray()
     aspect_deg[aspect_deg == nD] = np.nan
-    # print("Aspect ", aspect_deg, "\nmin: ", np.nanmin(aspect_deg), "\nmax: ", np.nanmax(aspect_deg)) #tst
 
     dest_lm = gdal.Open(par.getClipPathIN("landMask"))
     land_mask = dest_lm.GetRasterBand(1)
     nD = land_mask.GetNoDataValue()
     land_mask = land_mask.ReadAsArray()
-    # land_mask[np.isnan(lst)] = np.nan
-    # land_mask[land_mask == nD] = np.nan
-    # print("LandMask ", land_mask, "\nmin: ", np.nanmin(land_mask), "\nmax: ", np.nanmax(land_mask)) #tst
 
     # dest_bulk = gdal.Open(par.getClipPathIN("bulk"))
     # bulk = dest_bulk.GetRasterBand(1).ReadAsArray()
@@ -236,21 +212,16 @@ def main(date, jdate):
     z_obst_max = dest_maxobs.GetRasterBand(1)
     nD = z_obst_max.GetNoDataValue()
     z_obst_max = z_obst_max.ReadAsArray()
-    #z_obst_max[np.isnan(lst)] = np.nan
-    # z_obst_max[z_obst_max == nD] = np.nan
-    # print("ZobsMax ", z_obst_max, "\nmin: ", np.nanmin(z_obst_max), "\nmax: ", np.nanmax(z_obst_max)) #tst
 
     # HACK using original raster not clipped version
     dest_pairsea24 = gdal.Open(par.getFilePathIN("pair_24_0"))
     p_air_0_24 = dest_pairsea24.GetRasterBand(1).ReadAsArray()
     p_air_0_24 = meteo.air_pressure_kpa2mbar(p_air_0_24)
-    # p_air_0_24[np.isnan(lst)] = np.nan
 
     # HACK using original raster not clipped version
     dest_pairseainst = gdal.Open(par.getFilePathIN("pair_inst_0"))
     p_air_0_i = dest_pairseainst.GetRasterBand(1).ReadAsArray()
     p_air_0_i = meteo.air_pressure_kpa2mbar(p_air_0_i)
-    # p_air_0_i[np.isnan(lst)] = np.nan
 
     # HACK : using original raster not clipped version
     # AND 
@@ -258,16 +229,13 @@ def main(date, jdate):
     dest_pairinst = gdal.Open(par.getFilePathIN("pair_inst_0"))
     p_air_i = dest_pairinst.GetRasterBand(1).ReadAsArray()
     p_air_i = meteo.air_pressure_kpa2mbar(p_air_i)
-    # p_air_i[np.isnan(lst)] = np.nan
 
     # HACK using original raster not clipped version
     dest_precip = gdal.Open(par.getFilePathIN("pre"))
     P_24 = dest_precip.GetRasterBand(1).ReadAsArray()
-    # P_24[np.isnan(lst)] = np.nan
 
     dest_hum24 = gdal.Open(par.getClipPathIN("hum_24"))
     qv_24 = dest_hum24.GetRasterBand(1).ReadAsArray()
-    # qv_24[np.isnan(lst)] = np.nan
 
     dest_huminst = gdal.Open(par.getClipPathIN("hum_inst"))
     qv_i = dest_huminst.GetRasterBand(1).ReadAsArray()
@@ -276,55 +244,38 @@ def main(date, jdate):
     dest_tair24 = gdal.Open(par.getClipPathIN("tair_24"))
     t_air_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
     # t_air_24 = meteo.disaggregate_air_temperature_daily(t_air_24_coarse, z, z_coarse, lapse)
-    # t_air_24[np.isnan(lst)] = np.nan
 
     dest_tair24 = gdal.Open(par.getClipPathIN("tair_max_24"))
     t_air_max_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
-    # t_air_max_24[np.isnan(lst)] = np.nan
 
     dest_tair24 = gdal.Open(par.getClipPathIN("tair_min_24"))
     t_air_min_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
-    # t_air_min_24[np.isnan(lst)] = np.nan
 
     dest_tairinst = gdal.Open(par.getClipPathIN("tair_inst"))
     t_air_i = dest_tairinst.GetRasterBand(1).ReadAsArray()
-    # t_air_i[np.isnan(lst)] = np.nan
 
     dest_tairamp = gdal.Open(par.getClipPathIN("tair_amp"))
     t_amp_year = dest_tairamp.GetRasterBand(1).ReadAsArray()
-    # t_amp_year[np.isnan(lst)] = np.nan
 
     dest_wind24 = gdal.Open(par.getClipPathIN("wind_24"))
     u_24 = dest_wind24.GetRasterBand(1)
     nD = u_24.GetNoDataValue()
     u_24 = u_24.ReadAsArray()
-    # u_24[np.isnan(lst)] = np.nan
-    # u_24[u_24 == nD] = np.nan
 
     dest_windinst = gdal.Open(par.getClipPathIN("wind_inst"))
     u_i = dest_windinst.GetRasterBand(1)
     nD = u_i.GetNoDataValue()
     u_i = u_i.ReadAsArray()
-    # u_i[np.isnan(lst)] = np.nan
-    # u_24[u_24 == nD] = np.nan
 
     dest_watcol = gdal.Open(par.getClipPathIN("watCol_inst"))
     wv_i = dest_watcol.GetRasterBand(1)
     nD = wv_i.GetNoDataValue()
     wv_i = wv_i.ReadAsArray()
-    # wv_i[np.isnan(lst)] = np.nan
-    # u_24[u_24 == nD] = np.nan
 
     dest_trans = gdal.Open(par.getClipPathIN("trans_24"))
     trans_24 = dest_trans.GetRasterBand(1)
     nD = trans_24.GetNoDataValue()
     trans_24 = trans_24.ReadAsArray()
-    #trans_24[np.isnan(lst)] = np.nan
-    # u_24[u_24 == nD] = np.nan
-    # print("Trans24 ", trans_24, "\nmin: ", np.nanmin(trans_24), "\nmax: ", np.nanmax(trans_24)) #tst
-
-	# define output filepaths
-    # par_out = parm.PARAMS(file_path_out, date)
 
     # define prediction extent  ______________________________________________________________________:
     geo_ex = dest_lst.GetGeoTransform()
@@ -427,9 +378,6 @@ def main(date, jdate):
 
 #==========================================================================================================================
 
-    # vc[np.isnan(QC)] = np.nan
-    # lai[np.isnan(QC)] = np.nan
-    # lai_eff[np.isnan(QC)] = np.nan
     if out.vc == 1:
         PF.Save_as_tiff(par.getFilePathOUT("vc"), vc, geo_ex, proj_ex)
     if out.lai == 1:
@@ -456,14 +404,6 @@ def main(date, jdate):
     slope = solar_radiation.slope_rad(slope_deg)
     aspect = solar_radiation.aspect_rad(aspect_deg)
 
-    # print(sc)
-    # print(decl)
-    # print(iesd)
-    # print(lat)
-    # print(slope)
-    # print(aspect)
-
-
     ra_24_toa = solar_radiation.daily_solar_radiation_toa(sc, decl, iesd, lat, slope, aspect)
     ws = solar_radiation.sunset_hour_angle(lat, decl)
     ra_24_toa_flat = solar_radiation.daily_solar_radiation_toa_flat(decl, iesd, lat, ws)
@@ -483,23 +423,7 @@ def main(date, jdate):
     stress_temp = stress.stress_temperature(t_air_24, t_opt, t_min, t_max)
     r_canopy_0 = resistance.atmospheric_canopy_resistance(lai_eff, stress_rad, stress_vpd, stress_temp, rs_min, rcan_max)
 
-    # Save as tiff files
-    # lat[np.isnan(QC)] = np.nan
-    # slope[np.isnan(QC)] = np.nan
-    # aspect[np.isnan(QC)] = np.nan
-    # ra_24_toa[np.isnan(QC)] = np.nan
-    # ws[np.isnan(QC)] = np.nan
-    # ra_24_toa_flat[np.isnan(QC)] = np.nan
-    # diffusion_index[np.isnan(QC)] = np.nan
-    # ra_24[np.isnan(QC)] = np.nan
-    # stress_rad[np.isnan(QC)] = np.nan
-    # p_air_24[np.isnan(QC)] = np.nan
-    # vp_24[np.isnan(QC)] = np.nan
-    # svp_24[np.isnan(QC)] = np.nan
-    # vpd_24[np.isnan(QC)] = np.nan
-    # stress_vpd[np.isnan(QC)] = np.nan
-    # stress_temp[np.isnan(QC)] = np.nan
-    # r_canopy_0[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.lat == 1:
         PF.Save_as_tiff(par.getFilePathOUT("lat"), lat, geo_ex, proj_ex)
     if out.slope == 1:
@@ -542,14 +466,7 @@ def main(date, jdate):
     rn_24 = radiation.net_radiation(r0, ra_24, l_net, int_wm2)
     rn_24_canopy = radiation.net_radiation_canopy(rn_24, sf_soil)
 
-    # Save as tiff files
-    # t_air_k_24[np.isnan(QC)] = np.nan
-    # l_net[np.isnan(QC)] = np.nan
-    # int_mm[np.isnan(QC)] = np.nan
-    # lh_24[np.isnan(QC)] = np.nan
-    # int_wm2[np.isnan(QC)] = np.nan
-    # rn_24[np.isnan(QC)] = np.nan
-    # rn_24_canopy[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.t_air_k_24 == 1:
         PF.Save_as_tiff(par.getFilePathOUT("t_air_k_24"), t_air_k_24, geo_ex, proj_ex)
     if out.l_net == 1:
@@ -614,45 +531,7 @@ def main(date, jdate):
     r_canopy_0 = resistance.atmospheric_canopy_resistance(lai_eff, stress_rad, stress_vpd, stress_temp, rs_min, rcan_max)
     r_canopy = resistance.canopy_resistance(r_canopy_0, stress_moist, rcan_max)
 
-    # Save as tiff files
-    # t_air_k_i[np.isnan(QC)] = np.nan
-    # vp_i[np.isnan(QC)] = np.nan
-    # ad_moist_i[np.isnan(QC)] = np.nan
-    # ad_dry_i[np.isnan(QC)] = np.nan
-    # ad_i[np.isnan(QC)] = np.nan
-    # u_b_i_bare[np.isnan(QC)] = np.nan
-    # lon[np.isnan(QC)] = np.nan
-    # ha[np.isnan(QC)] = np.nan
-    # h0[np.isnan(QC)] = np.nan
-    # h0ref[np.isnan(QC)] = np.nan
-    # m[np.isnan(QC)] = np.nan
-    # rotm[np.isnan(QC)] = np.nan
-    # Tl2[np.isnan(QC)] = np.nan
-    # B0c[np.isnan(QC)] = np.nan
-    # Bhc[np.isnan(QC)] = np.nan
-    # Dhc[np.isnan(QC)] = np.nan
-    # ra_hor_clear_i[np.isnan(QC)] = np.nan
-    # emiss_atm_i[np.isnan(QC)] = np.nan
-    # rn_bare[np.isnan(QC)] = np.nan
-    # rn_full[np.isnan(QC)] = np.nan
-    # u_b_i_full[np.isnan(QC)] = np.nan
-    # u_star_i_bare[np.isnan(QC)] = np.nan
-    # u_star_i_full[np.isnan(QC)] = np.nan
-    # u_i_soil[np.isnan(QC)] = np.nan
-    # ras[np.isnan(QC)] = np.nan
-    # raa[np.isnan(QC)] = np.nan
-    # rac[np.isnan(QC)] = np.nan
-    # t_max_bare[np.isnan(QC)] = np.nan
-    # t_max_full[np.isnan(QC)] = np.nan
-    # w_i[np.isnan(QC)] = np.nan
-    # t_dew_i[np.isnan(QC)] = np.nan
-    # t_wet_i[np.isnan(QC)] = np.nan
-    # t_wet_k_i[np.isnan(QC)] = np.nan
-    # lst_max[np.isnan(QC)] = np.nan
-    # se_root[np.isnan(QC)] = np.nan
-    # stress_moist[np.isnan(QC)] = np.nan
-    # r_canopy_0[np.isnan(QC)] = np.nan
-    # r_canopy[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.t_air_k_i == 1:
         PF.Save_as_tiff(par.getFilePathOUT("t_air_k_i"), t_air_k_i, geo_ex, proj_ex)
     if out.vp_i == 1:
@@ -739,11 +618,7 @@ def main(date, jdate):
     z0m = roughness.roughness_length(lai, z_oro, z_obst, z_obst_max, land_mask)
     ra_canopy_init = neutral.initial_canopy_aerodynamic_resistance(u_24, z0m, z_obs)
 
-    # Save as tiff files
-    # z_obst[np.isnan(QC)] = np.nan
-    # z_oro[np.isnan(QC)] = np.nan
-    # z0m[np.isnan(QC)] = np.nan
-    # ra_canopy_init[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.z_obst == 1:
         PF.Save_as_tiff(par.getFilePathOUT("z_obst"), z_obst, geo_ex, proj_ex)
     if out.z_oro == 1:
@@ -756,8 +631,7 @@ def main(date, jdate):
     # **windspeed blending height daily***********************************************************
     u_b_24 = meteo.wind_speed_blending_height_daily(u_24, z_obs, z_b)
 
-    # Save as tiff files
-    # u_b_24[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.u_b_24 == 1:
         PF.Save_as_tiff(par.getFilePathOUT("u_b_24"), u_b_24, geo_ex, proj_ex)
 
@@ -765,9 +639,7 @@ def main(date, jdate):
     disp = roughness.displacement_height(lai, z_obst, land_mask, c1)
     u_star_24_init = unstable.initial_friction_velocity_daily(u_b_24, z0m, disp, z_b)
 
-    # Save as tiff files
-    # disp[np.isnan(QC)] = np.nan
-    # u_star_24_init[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.disp == 1:
         PF.Save_as_tiff(par.getFilePathOUT("disp"), disp, geo_ex, proj_ex)
     if out.u_star_24_init == 1:
@@ -781,13 +653,7 @@ def main(date, jdate):
     ssvp_24 = meteo.slope_saturated_vapour_pressure_daily(t_air_24)
     t_24_init = neutral.initial_daily_transpiration(rn_24_canopy, ssvp_24, ad_24, vpd_24, psy_24, r_canopy, ra_canopy_init)
 
-    # Save as tiff files
-    # ad_dry_24[np.isnan(QC)] = np.nan
-    # ad_moist_24[np.isnan(QC)] = np.nan
-    # ad_24[np.isnan(QC)] = np.nan
-    # psy_24[np.isnan(QC)] = np.nan
-    # ssvp_24[np.isnan(QC)] = np.nan
-    # t_24_init[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.ad_dry_24 == 1:
         PF.Save_as_tiff(par.getFilePathOUT("ad_dry_24"), ad_dry_24, geo_ex, proj_ex)
     if out.ad_moist_24 == 1:
@@ -804,8 +670,7 @@ def main(date, jdate):
     # **ETLook.unstable.initial_sensible_heat_flux_canopy_daily***********************************************************
     h_canopy_24_init = unstable.initial_sensible_heat_flux_canopy_daily(rn_24_canopy, t_24_init)
 
-    # Save as tiff files
-    # h_canopy_24_init[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.h_canopy_24_init == 1:
         PF.Save_as_tiff(par.getFilePathOUT("h_canopy_24_init"), h_canopy_24_init, geo_ex, proj_ex)
 
@@ -814,9 +679,7 @@ def main(date, jdate):
     t_24 = unstable.transpiration(rn_24_canopy, ssvp_24, ad_24, vpd_24, psy_24, r_canopy, h_canopy_24_init, t_air_k_24, u_star_24_init, z0m, disp, u_b_24, z_obs, z_b, iter_h)
     t_24_mm = unstable.transpiration_mm(t_24, lh_24)
 
-    # Save as tiff files
-    # t_24[np.isnan(QC)] = np.nan
-    # t_24_mm[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.t_24 == 1:
         PF.Save_as_tiff(par.getFilePathOUT("t_24"), t_24, geo_ex, proj_ex)
     if out.t_24_mm == 1:
@@ -828,9 +691,7 @@ def main(date, jdate):
     sf_soil = radiation.soil_fraction(lai)
     rn_24_soil = radiation.net_radiation_soil(rn_24, sf_soil)
 
-    # Save as tiff files
-    # sf_soil[np.isnan(QC)] = np.nan
-    # rn_24_soil[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.sf_soil == 1:
         PF.Save_as_tiff(par.getFilePathOUT("sf_soil"), sf_soil, geo_ex, proj_ex)
     if out.rn_24_soil == 1:
@@ -840,8 +701,7 @@ def main(date, jdate):
 
     r_soil = resistance.soil_resistance(se_top, land_mask, r_soil_pow, r_soil_min)
 
-    # Save as tiff files
-    # r_soil[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.r_soil == 1:
         PF.Save_as_tiff(par.getFilePathOUT("r_soil"), r_soil, geo_ex, proj_ex)
 
@@ -858,8 +718,7 @@ def main(date, jdate):
 
     u_b_24 = meteo.wind_speed_blending_height_daily(u_24, z_obs, z_b)
 
-    # Save as tiff files
-    # u_b_24[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.u_b_24 == 1:
         PF.Save_as_tiff(par.getFilePathOUT("u_b_24"), u_b_24, geo_ex, proj_ex)
 
@@ -867,8 +726,7 @@ def main(date, jdate):
 
     u_star_24_soil_init = unstable.initial_friction_velocity_soil_daily(u_b_24, disp, z_b)
 
-    # Save as tiff files
-    # u_star_24_soil_init[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.u_star_24_soil_init == 1:
         PF.Save_as_tiff(par.getFilePathOUT("u_star_24_soil_init"), u_star_24_soil_init, geo_ex, proj_ex)
 
@@ -882,11 +740,7 @@ def main(date, jdate):
     e_24_init = neutral.initial_daily_evaporation(rn_24_soil, g0_24, ssvp_24, ad_24, vpd_24, psy_24, r_soil, ra_soil_init)
     h_soil_24_init = unstable.initial_sensible_heat_flux_soil_daily(rn_24_soil, e_24_init, g0_24)
 
-    # Save as tiff files
-    # g0_bs[np.isnan(QC)] = np.nan
-    # g0_24[np.isnan(QC)] = np.nan
-    # e_24_init[np.isnan(QC)] = np.nan
-    # h_soil_24_init[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.g0_bs == 1:
         PF.Save_as_tiff(par.getFilePathOUT("g0_bs"), g0_bs, geo_ex, proj_ex)
     if out.g0_24 == 1:
@@ -902,10 +756,7 @@ def main(date, jdate):
     e_24_mm = unstable.evaporation_mm(e_24, lh_24)
     et_24_mm = evapotranspiration.et_actual_mm(e_24_mm, t_24_mm)
 
-    # Save as tiff files
-    # e_24[np.isnan(QC)] = np.nan
-    # e_24_mm[np.isnan(QC)] = np.nan
-    # et_24_mm[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.e_24 == 1:
         PF.Save_as_tiff(par.getFilePathOUT("e_24"), e_24, geo_ex, proj_ex)
     if out.e_24_mm == 1:
@@ -918,10 +769,7 @@ def main(date, jdate):
     et_ref_24 = evapotranspiration.et_reference(rn_24_grass, ad_24, psy_24, vpd_24, ssvp_24, u_24)
     et_ref_24_mm = evapotranspiration.et_reference_mm(et_ref_24, lh_24)
 
-    # Save as tiff files
-    # rn_24_grass[np.isnan(QC)] = np.nan
-    # et_ref_24[np.isnan(QC)] = np.nan
-    # et_ref_24_mm[np.isnan(QC)] = np.nan
+    ## Save as tiff files_____________________________________________________________________________:
     if out.rn_24_grass == 1:
         PF.Save_as_tiff(par.getFilePathOUT("rn_24_grass"), rn_24_grass, geo_ex, proj_ex)
     if out.et_ref_24 == 1:
@@ -930,8 +778,9 @@ def main(date, jdate):
         PF.Save_as_tiff(par.getFilePathOUT("et_ref_24_mm"), et_ref_24_mm, geo_ex, proj_ex)
 
 
-
+rlenRange = len(input_dates)+1
 # for i in input_dates:
 for i in range(0,1): # temp
-    print("Currently processing {", input_dates[i],"} ...")
+    print("Currently processing: { ", input_dates[i]," }\n[", (i+1), " / ", rlenRange)
     main(input_dates[i], julian_dates[i])
+    os.system('cls')
