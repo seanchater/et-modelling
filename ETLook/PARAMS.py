@@ -60,7 +60,7 @@ class PARAMS:
 		"tair_min_24" : os.path.join(os.path.join(input_path, "temp_24_min/"),"temp_min_clip_%s.tif" %input_dates),
 		"tair_amp" : os.path.join(os.path.join(input_path, "temp_range"), "temp_range_clip.tif"),
 		"wind_24" : os.path.join(os.path.join(input_path, "wind_24/"), "wind_clip%s.tif" %input_dates),
-		# "wind_inst" : os.path.join(os.path.join(input_path, "wind_inst/"), "wind_clip_%s.tif" %input_dates),
+		"wind_inst" : os.path.join(os.path.join(input_path, "wind_inst/"), "wind_i_clip_%s.tif" %input_dates),
 		"watCol_inst" : os.path.join(os.path.join(input_path, "watercol_inst/"), "watercol_i_clip_%s.tif" %input_dates),
 		"trans_24" : os.path.join(os.path.join(input_path, "transmissivity_false/"), "transmissivity_clip.tif")
 		}
@@ -90,7 +90,7 @@ class PARAMS:
 		"tair_min_24" : os.path.join(os.path.join(input_path, "temp_24_min"), "temp_min_%s.tif" %input_dates),
 		"tair_amp" : os.path.join(os.path.join(input_path, "temp_range"), "temp_range.tif"),
 		"wind_24" : os.path.join(os.path.join(input_path, "wind_24/"), "wind_%s.tif" %input_dates),
-		#"wind_inst" : os.path.join(os.path.join(input_path, "wind_inst_%s.tif",
+		"wind_inst" : os.path.join(os.path.join(input_path, "wind_inst/"), "wind_i_%s.tif" %input_dates),
 		"watCol_inst" : os.path.join(os.path.join(input_path, "watercol_inst/"), "watercol_i_%s.tif" %input_dates),
 		"trans_24" : os.path.join(os.path.join(input_path, "transmissivity_false/"), "transmissivity.tif")
 		}

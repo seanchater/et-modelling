@@ -295,11 +295,10 @@ def main(date, jdate):
     # u_24[np.isnan(lst)] = np.nan
     # u_24[u_24 == nD] = np.nan
 
-    # TODO: wind instantaneous 
-    # dest_windinst = gdal.Open(par.getClipPathIN("wind_inst"))
-    # u_i = dest_windinst.GetRasterBand(1)
-    # nD = u_i.GetNoDataValue()
-    # u_i = u_i.ReadAsArray()
+    dest_windinst = gdal.Open(par.getClipPathIN("wind_inst"))
+    u_i = dest_windinst.GetRasterBand(1)
+    nD = u_i.GetNoDataValue()
+    u_i = u_i.ReadAsArray()
     # u_i[np.isnan(lst)] = np.nan
     # u_24[u_24 == nD] = np.nan
 
