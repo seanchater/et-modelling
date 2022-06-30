@@ -17,11 +17,11 @@ import zeditETLook, solar_radiation, clear_sky_radiation, meteo, radiation, evap
 # from Functions import Processing_Functions as PF
 
 current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent)
-print(parent)
-# import ETLook as ET
+etModel = os.path.dirname(current)
+sys.path.append(etModel)
 import Functions as PF
+parent = os.path.dirname(etModel)
+print(etModel, parent) #tst
 
 #np.set_printoptions(suppress=True)
 
@@ -94,11 +94,14 @@ try:
 
 except:
     print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case use the -gui argument\33[0m)")
-    file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
-    file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
+    # file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
+    # file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
     # file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
     # file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
-    rDate = readDate("dateFormat.csv")
+    # rDate = readDate("dateFormat.csv")
+    file_path_in = os.path.join(parent, "Data/input_data")
+    file_path_out = os.path.join(parent, "Data/output")
+    rDate = readDate(os.path.join(parent, "et-modelling/ETLook/dateFormat.csv"))
     stripDate(rDate)
 
     """ print("\n\n input dates \n\n")
