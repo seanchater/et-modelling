@@ -96,8 +96,8 @@ except:
     print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case use the -gui argument\33[0m)")
     # file_path_in = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\in_"
     # file_path_out = r"G:\My Drive\Stellenbosch\2022\716\ET\modeling\Data\out_"
-    # file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
-    # file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
+    file_path_in = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\input_data"
+    file_path_out = r"C:\Users\seanc\Documents\SU\2022_hons\716\et\etlook\output"
     # rDate = readDate("dateFormat.csv")
     file_path_in = os.path.join(parent, "Data/input_data")
     file_path_out = os.path.join(parent, "Data/output")
@@ -146,14 +146,15 @@ def main(date, jdate):
     print(par.getFilePathIN("time")) #tst
 
     # clip inputs files  ______________________________________________________________________________:
-    print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent()) #tst
-    for i in par.getKeysIN():
-        print(f'{i : >14}', end=' - ')
-        state = clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent())
-        if state[0]:
-            print(f'{"done" : <7} : {state[1]}')
-        else:
-            print(f'{"failed" : <7} : {state[1]}')
+    # HACK: changed all clip path things to inputpath to test if clipping is an issue
+    # print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent()) #tst
+    # for i in par.getKeysIN():
+    #     print(f'{i : >14}', end=' - ')
+    #     state = clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent())
+    #     if state[0]:
+    #         print(f'{"done" : <7} : {state[1]}')
+    #     else:
+    #         print(f'{"failed" : <7} : {state[1]}')
 
     # read inputs files  ______________________________________________________________________________:
     dest_lst = gdal.Open(par.getClipPathIN("lst"))
@@ -239,24 +240,25 @@ def main(date, jdate):
     # z_obst_max[z_obst_max == nD] = np.nan
     # print("ZobsMax ", z_obst_max, "\nmin: ", np.nanmin(z_obst_max), "\nmax: ", np.nanmax(z_obst_max)) #tst
 
-    """ dest_pairsea24 = gdal.Open(par.getClipPathIN("pair_24_0"))
+    dest_pairsea24 = gdal.Open(par.getClipPathIN("pair_24_0"))
     p_air_0_24 = dest_pairsea24.GetRasterBand(1).ReadAsArray()
     p_air_0_24 = meteo.air_pressure_kpa2mbar(p_air_0_24)
-    p_air_0_24[np.isnan(lst)] = np.nan
+    # p_air_0_24[np.isnan(lst)] = np.nan
 
     dest_pairseainst = gdal.Open(par.getClipPathIN("pair_inst_0"))
     p_air_0_i = dest_pairseainst.GetRasterBand(1).ReadAsArray()
-    p_air_0_i = ETLook.meteo.air_pressure_kpa2mbar(p_air_0_i)
-    p_air_0_i[np.isnan(lst)] = np.nan
+    p_air_0_i = meteo.air_pressure_kpa2mbar(p_air_0_i)
+    # p_air_0_i[np.isnan(lst)] = np.nan
 
-    dest_pairinst = gdal.Open(par.getClipPathIN("pair_inst"))
+    # TODO : currently using sea level pressure 
+    dest_pairinst = gdal.Open(par.getClipPathIN("pair_inst_0"))
     p_air_i = dest_pairinst.GetRasterBand(1).ReadAsArray()
-    p_air_i = ETLook.meteo.air_pressure_kpa2mbar(p_air_i)
-    p_air_i[np.isnan(lst)] = np.nan
+    p_air_i = meteo.air_pressure_kpa2mbar(p_air_i)
+    # p_air_i[np.isnan(lst)] = np.nan
 
     dest_precip = gdal.Open(par.getClipPathIN("pre"))
     P_24 = dest_precip.GetRasterBand(1).ReadAsArray()
-    P_24[np.isnan(lst)] = np.nan
+    # P_24[np.isnan(lst)] = np.nan
 
     dest_hum24 = gdal.Open(par.getClipPathIN("hum_24"))
     qv_24 = dest_hum24.GetRasterBand(1).ReadAsArray()
@@ -268,16 +270,16 @@ def main(date, jdate):
 
     dest_tair24 = gdal.Open(par.getClipPathIN("tair_24"))
     t_air_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
-    #t_air_24 = ETLook.meteo.disaggregate_air_temperature_daily(t_air_24_coarse, z, z_coarse, lapse)
+    # t_air_24 = meteo.disaggregate_air_temperature_daily(t_air_24_coarse, z, z_coarse, lapse)
     # t_air_24[np.isnan(lst)] = np.nan
 
     dest_tair24 = gdal.Open(par.getClipPathIN("tair_max_24"))
     t_air_max_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
-    t_air_max_24[np.isnan(lst)] = np.nan
+    # t_air_max_24[np.isnan(lst)] = np.nan
 
     dest_tair24 = gdal.Open(par.getClipPathIN("tair_min_24"))
     t_air_min_24 = dest_tair24.GetRasterBand(1).ReadAsArray()
-    t_air_min_24[np.isnan(lst)] = np.nan
+    # t_air_min_24[np.isnan(lst)] = np.nan
 
     dest_tairinst = gdal.Open(par.getClipPathIN("tair_inst"))
     t_air_i = dest_tairinst.GetRasterBand(1).ReadAsArray()
@@ -285,8 +287,8 @@ def main(date, jdate):
 
     dest_tairamp = gdal.Open(par.getClipPathIN("tair_amp"))
     t_amp_year = dest_tairamp.GetRasterBand(1).ReadAsArray()
-    t_amp_year[np.isnan(lst)] = np.nan
-    """
+    # t_amp_year[np.isnan(lst)] = np.nan
+
     dest_wind24 = gdal.Open(par.getClipPathIN("wind_24"))
     u_24 = dest_wind24.GetRasterBand(1)
     nD = u_24.GetNoDataValue()
@@ -294,10 +296,11 @@ def main(date, jdate):
     # u_24[np.isnan(lst)] = np.nan
     # u_24[u_24 == nD] = np.nan
 
-    dest_windinst = gdal.Open(par.getClipPathIN("wind_inst"))
-    u_i = dest_windinst.GetRasterBand(1)
-    nD = u_i.GetNoDataValue()
-    u_i = u_i.ReadAsArray()
+    # TODO: wind instantaneous 
+    # dest_windinst = gdal.Open(par.getClipPathIN("wind_inst"))
+    # u_i = dest_windinst.GetRasterBand(1)
+    # nD = u_i.GetNoDataValue()
+    # u_i = u_i.ReadAsArray()
     # u_i[np.isnan(lst)] = np.nan
     # u_24[u_24 == nD] = np.nan
 
@@ -449,27 +452,13 @@ def main(date, jdate):
     slope = solar_radiation.slope_rad(slope_deg)
     aspect = solar_radiation.aspect_rad(aspect_deg)
 
-    print(sc)
-    print(decl)
-    print(iesd)
-    print(lat)
-    print(slope)
-    print(aspect)
+    # print(sc)
+    # print(decl)
+    # print(iesd)
+    # print(lat)
+    # print(slope)
+    # print(aspect)
 
-    print("\n\ncalc ra_24_toa\n\n")
-    # print("sc: " + str(type(sc)))
-    print("decl: " + str(type(decl)))
-    print("\tndim: ", str(decl.ndim))
-    print("\tshape: ", str(decl.shape))
-    # print("iesd: " + str(type(iesd)))
-    print("lat: " + str(type(lat)))
-    print("\tndim: ", str(lat.ndim))
-    print("\tshape: ", str(lat.shape))
-    
-    print("slope: " + str(type(slope)))
-    print("\tndim: ", str(slope.ndim))
-    print("\tshape: ", str(slope.shape))
-    # print("aspect: " + str(type(aspect)))
 
     ra_24_toa = solar_radiation.daily_solar_radiation_toa(sc, decl, iesd, lat, slope, aspect)
     ws = solar_radiation.sunset_hour_angle(lat, decl)
@@ -480,6 +469,18 @@ def main(date, jdate):
     #ra_24 = ETLook.solar_radiation.daily_solar_radiation_flat(ra_24_toa_flat, trans_24)
     ra_24 = solar_radiation.daily_total_solar_radiation(ra_24_toa, ra_24_toa_flat, diffusion_index, trans_24)
     stress_rad = stress.stress_radiation(ra_24)
+
+    # TODO
+    print("\n\ncalc ra_24_toa\n\n")
+
+    print("z: " + str(type(z)))
+    print("\tndim: ", str(z.ndim))
+    print("\tshape: ", str(z.shape))
+
+    print("p_air_0_24: " + str(type(p_air_0_24)))
+    print("\tndim: ", str(p_air_0_24.ndim))
+    print("\tshape: ", str(p_air_0_24.shape))
+
     p_air_24 = meteo.air_pressure_daily(z, p_air_0_24)
     vp_24 = meteo.vapour_pressure_from_specific_humidity_daily(qv_24, p_air_24)
     svp_24 = meteo.saturated_vapour_pressure_average(

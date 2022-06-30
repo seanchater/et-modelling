@@ -3,7 +3,7 @@ class PARAMS:
 
 		import os
 
-		self.extent =  os.path.join(os.path.join(input_path, "3318DD_extent/"), "3318DD.shp")
+		self.extent =  os.path.join(os.path.join(input_path, "Extent/"), "extent.shp")
 
 		""" self.parDictIN = {
 		"albedo" : os.path.join(os.path.join(input_path, "Albedo_outputs/"), "Albedo_%s.tif" %input_dates),
@@ -36,46 +36,46 @@ class PARAMS:
 		} """
 
 		self.parDictClip = {
-		"albedo" : os.path.join(os.path.join(input_path, "Albedo_outputs/"), "albedo_clip_%s.tif" %input_dates),
+		"albedo" : os.path.join(os.path.join(input_path, "Albedo/"), "albedo_clip_%s.tif" %input_dates),
 		"ndvi" : os.path.join(os.path.join(input_path, "Indecies/"), "Indeces_clip_%s.tif" %input_dates),
 		"lst" : os.path.join(os.path.join(input_path, "LST/"), "lst_clip_%s.tif" %input_dates),
 		"time" : os.path.join(os.path.join(input_path, "Time/"), "solarTime_clip.tif"),
-		"lat" : os.path.join(os.path.join(input_path, "Lat_Long_Rasters/"), "lat_clip.tif"),
-		"lon" : os.path.join(os.path.join(input_path, "Lat_Long_Rasters/"), "lon_clip.tif"),
-		"dem" : os.path.join(os.path.join(input_path, "DEM_Derviatives/"), "dem_clip.tif"),
-		"slope" : os.path.join(os.path.join(input_path, "DEM_Derviatives/"), "slope_clip.tif"),
-		"aspect" : os.path.join(os.path.join(input_path, "DEM_Derviatives/"), "aspect_clip.tif"),
-		"landMask" : os.path.join(os.path.join(input_path, "Land_Mask/"), "landMask_clip.tif"),
+		"lat" : os.path.join(os.path.join(input_path, "LatLon/"), "lat_clip.tif"),
+		"lon" : os.path.join(os.path.join(input_path, "LatLon/"), "lon_clip.tif"),
+		"dem" : os.path.join(os.path.join(input_path, "Z/"), "dem_clip.tif"),
+		"slope" : os.path.join(os.path.join(input_path, "Z/"), "slope_clip.tif"),
+		"aspect" : os.path.join(os.path.join(input_path, "Z/"), "aspect_clip.tif"),
+		"landMask" : os.path.join(os.path.join(input_path, "LandMask/"), "landMask_clip.tif"),
 		"bulk" : os.path.join(os.path.join(input_path, "LULC_Products/"), "bulkSt_clip.tif"),
 		"maxObs" : os.path.join(os.path.join(input_path, "LULC_Products/"), "maxObs_clip.tif"),
-		"pair_24_0" : os.path.join(os.path.join(input_path, "sea_pressure_24/"), "spressure_24_clip_%s.tif"),
-		"pair_inst_0" : os.path.join(os.path.join(input_path, "sea_pressure_inst/"), "spressure_i_clip_%s.tif"),
+		"pair_24_0" : os.path.join(os.path.join(input_path, "sea_pressure_24/"), "spressure_24_clip_%s.tif" %input_dates),
+		"pair_inst_0" : os.path.join(os.path.join(input_path, "sea_pressure_inst/"), "spressure_i_clip_%s.tif" %input_dates),
 		#"pair_inst" : "Pair_inst_%s.tif",
 		"pre" : os.path.join(os.path.join(input_path,"precip_24/"), "precip_24_clip_%s.tif"),
 		"hum_24" : os.path.join(os.path.join(input_path, "hum_24/"),"hum_24_clip_%s.tif" %input_dates),
 		"hum_inst" : os.path.join(os.path.join(input_path, "hum_inst/"), "hum_i_clip_%s.tif" %input_dates),
 		"tair_24" : os.path.join(os.path.join(input_path, "temp_24/"),"temp_24_clip_%s.tif" %input_dates),
 		"tair_inst" : os.path.join(os.path.join(input_path, "temp_inst/"),"temp_i_clip_%s.tif" %input_dates),
-		"tair_max_24" : os.path.join(os.path.join(input_path, "temp_24_max/"), "temp_max_%s.tif" %input_dates),
-		"tair_min_24" : os.path.join(os.path.join(input_path, "tmep_24_min/"),"temp_min_%s.tif" %input_dates),
-		"tair_amp" : os.path.join(os.path.join(input_path, "temp_range"), "temp_range.tif"),
-		"wind_24" : os.path.join(os.path.join(input_path, "Wind_IDW/"), "Wind_IDW_24_clip.tif" ),
-		"wind_inst" : os.path.join(os.path.join(input_path, "wind_inst/"), "wind_%s.tif" %input_dates),
-		"watCol_inst" : os.path.join(os.path.join(input_path, "wc_inst/"), "Water_Col_clip_%s.tif" %input_dates),
+		"tair_max_24" : os.path.join(os.path.join(input_path, "temp_24_max/"), "temp_max_clip_%s.tif" %input_dates),
+		"tair_min_24" : os.path.join(os.path.join(input_path, "temp_24_min/"),"temp_min_clip_%s.tif" %input_dates),
+		"tair_amp" : os.path.join(os.path.join(input_path, "temp_range"), "temp_range_clip.tif"),
+		"wind_24" : os.path.join(os.path.join(input_path, "wind_24/"), "wind_clip%s.tif" %input_dates),
+		# "wind_inst" : os.path.join(os.path.join(input_path, "wind_inst/"), "wind_clip_%s.tif" %input_dates),
+		"watCol_inst" : os.path.join(os.path.join(input_path, "watercol_inst/"), "watercol_i_clip_%s.tif" %input_dates),
 		"trans_24" : os.path.join(os.path.join(input_path, "transmissivity_false/"), "transmissivity_clip.tif")
 		}
 
 		self.parDictIN = {
-		"albedo" : os.path.join(os.path.join(input_path, "Albedo_outputs/"), "Albedo_%s.tif" %input_dates),
+		"albedo" : os.path.join(os.path.join(input_path, "Albedo/"), "Albedo_%s.tif" %input_dates),
 		"ndvi" : os.path.join(os.path.join(input_path, "Indecies/"), "Indeces_%s.tif" %input_dates),
 		"lst" : os.path.join(os.path.join(input_path, "LST/"), "LST_%s.tif" %input_dates),
 		"time" : os.path.join(os.path.join(input_path, "Time/"), "solarTime.tif"),
-		"lat" : os.path.join(os.path.join(input_path, "Lat_Long_Rasters/"), "lat.tif"),
-		"lon" : os.path.join(os.path.join(input_path, "Lat_Long_Rasters/"), "lon.tif"),
-		"dem" : os.path.join(os.path.join(input_path, "DEM_Derviatives/"), "DEM_AOI.tif"),
-		"slope" : os.path.join(os.path.join(input_path, "DEM_Derviatives/"), "Slope_AOI.tif"),
-		"aspect" : os.path.join(os.path.join(input_path, "DEM_Derviatives/"), "Aspect_AOI.tif"),
-		"landMask" : os.path.join(os.path.join(input_path, "Land_Mask/"), "LandMask.tif"),
+		"lat" : os.path.join(os.path.join(input_path, "LatLon/"), "lat.tif"),
+		"lon" : os.path.join(os.path.join(input_path, "LatLon/"), "lon.tif"),
+		"dem" : os.path.join(os.path.join(input_path, "Z/"), "dem.tif"),
+		"slope" : os.path.join(os.path.join(input_path, "Z/"), "slope.tif"),
+		"aspect" : os.path.join(os.path.join(input_path, "Z/"), "aspect.tif"),
+		"landMask" : os.path.join(os.path.join(input_path, "LandMask/"), "LandMask.tif"),
 		"bulk" : os.path.join(os.path.join(input_path, "LULC_Products/"), "BSR_AOI.tif"),
 		"maxObs" : os.path.join(os.path.join(input_path, "LULC_Products/"), "Max_height_AOI.tif"),
 		"pair_24_0" : os.path.join(os.path.join(input_path, "sea_pressure_24/"), "spressure_24_%s.tif" %input_dates),
@@ -86,12 +86,12 @@ class PARAMS:
 		"hum_inst" : os.path.join(os.path.join(input_path, "hum_inst/"), "hum_i_%s.tif" %input_dates),
 		"tair_24" : os.path.join(os.path.join(input_path, "temp_24/"),"temp_24_%s.tif" %input_dates),
 		"tair_inst" : os.path.join(os.path.join(input_path, "temp_inst/"),"temp_i_%s.tif" %input_dates),
-		#"tair_max_24" : "tair_max_24_%s.tif",
-		#"tair_min_24" : "tair_min_24_%s.tif",
-		#"tair_amp" : "Tair_amp_%s.tif",
-		# "wind_24" : os.path.join(os.path.join(input_path, "Wind_IDW/"), "Wind_IDW_24.tif" ),
-		#"wind_inst" : "wind_inst_%s.tif",
-		"watCol_inst" : os.path.join(os.path.join(input_path, "wc_inst/"), "Water_Col_%s.tif" %input_dates),
+		"tair_max_24" : os.path.join(os.path.join(input_path, "temp_24_max/"), "temp_max_%s.tif" %input_dates),
+		"tair_min_24" : os.path.join(os.path.join(input_path, "temp_24_min"), "temp_min_%s.tif" %input_dates),
+		"tair_amp" : os.path.join(os.path.join(input_path, "temp_range"), "temp_range.tif"),
+		"wind_24" : os.path.join(os.path.join(input_path, "wind_24/"), "wind_%s.tif" %input_dates),
+		#"wind_inst" : os.path.join(os.path.join(input_path, "wind_inst_%s.tif",
+		"watCol_inst" : os.path.join(os.path.join(input_path, "watercol_inst/"), "watercol_i_%s.tif" %input_dates),
 		"trans_24" : os.path.join(os.path.join(input_path, "transmissivity_false/"), "transmissivity.tif")
 		}
 
