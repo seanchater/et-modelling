@@ -136,7 +136,6 @@ def main(date, jdate):
     par = parm.PARAMS(file_path_in, file_path_out, date) #[0] <-should be able to handle any range a.t.m
 
     # clip inputs files  ______________________________________________________________________________:
-    print(par.getClipPathIN("albedo"), par.getFilePathIN("albedo"), par.getExtent()) #tst
     for i in par.getKeysIN():
         print(f'{i : >14}', end=' - ')
         state = clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent())
@@ -370,11 +369,13 @@ def main(date, jdate):
 
     nd_min = np.nanmin(ndvi)
     nd_max = np.nanmax(ndvi)
-
+    
     vc = leaf.vegetation_cover(ndvi, nd_min, nd_max, vc_pow)
     vc_min = np.nanmin(vc)
     vc_max = np.nanmax(vc)
-
+    if vc_max == 1:
+        vc_max = 0.9677324224821418
+    print(vc, "\nmin:", np.nanmin(vc), "\nmax:", np.nanmax(vc))
     lai = leaf.leaf_area_index(vc, vc_min, vc_max, lai_pow)
     lai_eff = leaf.effective_leaf_area_index(lai)
 
@@ -783,6 +784,6 @@ def main(date, jdate):
 rlenRange = len(input_dates)+1
 # for i in input_dates:
 for i in range(0,1): # temp
-    print("Currently processing: { ", input_dates[i]," }\n[", (i+1), " / ", rlenRange)
+    print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]")
     main(input_dates[i], julian_dates[i])
     os.system('cls')
