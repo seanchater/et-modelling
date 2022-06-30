@@ -13,11 +13,12 @@ from tkinter import filedialog
 import csv
 import math
 import zeditETLook, solar_radiation, clear_sky_radiation, meteo, radiation, evapotranspiration, soil_moisture, leaf, stress, resistance, roughness, neutral, unstable, outputs
+import Processing_Functions as PF
 
 current = os.path.dirname(os.path.realpath(__file__))
 etModel = os.path.dirname(current)
 sys.path.append(etModel)
-import Functions as PF
+# import Functions as PF
 parent = os.path.dirname(etModel)
 print(etModel, parent) #tst
 
@@ -254,7 +255,8 @@ def main(date, jdate):
     dest_tairinst = gdal.Open(par.getClipPathIN("tair_inst"))
     t_air_i = dest_tairinst.GetRasterBand(1).ReadAsArray()
 
-    dest_tairamp = gdal.Open(par.getClipPathIN("tair_amp"))
+    # HACK using original raster not clipped version
+    dest_tairamp = gdal.Open(par.getFilePathIN("tair_amp"))
     t_amp_year = dest_tairamp.GetRasterBand(1).ReadAsArray()
 
     dest_wind24 = gdal.Open(par.getClipPathIN("wind_24"))
