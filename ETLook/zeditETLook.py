@@ -101,7 +101,7 @@ except:
     
 print("Input Directory  - ", file_path_in, "\nOutput Directory - ", file_path_out, "\nDate-Range CSV   - ",input_dates)
 sleep(4)
-os.system('cls')
+# os.system('cls')
 
 ## Clipping rasters to shapefile extent   _________________________________________________________:
 def clipRast(outName, inRast, ext, reCreate=False):
@@ -367,6 +367,7 @@ def main(date, jdate):
     #=================================================================================================:
     # LAI
 
+    # TODO : could add / subtract to max / min
     nd_min = np.nanmin(ndvi)
     nd_max = np.nanmax(ndvi)
     
@@ -375,7 +376,6 @@ def main(date, jdate):
     vc_max = np.nanmax(vc)
     if vc_max == 1:
         vc_max = 0.9677324224821418
-    print(vc, "\nmin:", np.nanmin(vc), "\nmax:", np.nanmax(vc))
     lai = leaf.leaf_area_index(vc, vc_min, vc_max, lai_pow)
     lai_eff = leaf.effective_leaf_area_index(lai)
 
@@ -786,4 +786,4 @@ rlenRange = len(input_dates)+1
 for i in range(0,1): # temp
     print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]")
     main(input_dates[i], julian_dates[i])
-    os.system('cls')
+    # os.system('cls')
