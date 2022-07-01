@@ -22,7 +22,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 etModel = os.path.dirname(current)
 parent = os.path.dirname(etModel)
 
-errDates = Dict()
+errDates = dict()
 file_path_in = ""
 file_path_out = ""
 rDate = ""
@@ -136,7 +136,7 @@ def clipRast(outName, inRast, ext, reCreate=False):
         except:
             return [False, "Could not Clip..."]
 
-def errCatch(edict:Dict, date:str, err:str):
+def errCatch(edict:dict, date:str, err:str):
     edict[date] = err
 
 
@@ -799,15 +799,19 @@ def main(date, jdate):
 
 setup()
 rlenRange = len(input_dates)
+
 for i in range(0, rlenRange):
-# for i in range(0,1): # temp
+    sleep(1)
     if i <= rlenRange:
         os.system('cls')
-    print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]", end="\r")
+    print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]")
     try:
         main(input_dates[i], julian_dates[i])
-    except:
-        print("")
-    sleep(2)
-    
+    except Exception as e:
+        errCatch(errDates, input_dates[i], str(e))
+    sleep(1)
+os.system('cls')
+print("The following errors were encountered:\n[date - error]\n\n")
+for i in errDates:
+    print(f'{i : <5} - {errDates[i]}')
 quit()
