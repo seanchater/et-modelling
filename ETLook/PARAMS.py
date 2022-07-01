@@ -1,5 +1,5 @@
 class PARAMS:
-	def __init__(self, input_path, output_path, input_dates:None):
+	def __init__(self, input_path:str, output_path:str, input_dates:str):
 
 		"""
 		Setting up file paths for use in code, takes: 

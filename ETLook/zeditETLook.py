@@ -6,6 +6,7 @@ from time import sleep
 from osgeo import gdal
 import matplotlib.pyplot as plt
 import numpy as np
+from pyparsing import Dict
 import outputs as out
 import PARAMS as parm
 import tkinter as tk
@@ -19,6 +20,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 etModel = os.path.dirname(current)
 parent = os.path.dirname(etModel)
 
+errDates = Dict()
 file_path_in = ""
 file_path_out = ""
 rDate = ""
@@ -132,15 +134,18 @@ def clipRast(outName, inRast, ext, reCreate=False):
         except:
             return [False, "Could not Clip..."]
 
+def errCatch(edict:Dict, date:str, err:str):
+    edict[date] = err
+
 
 def main(date, jdate):
 
-    # define input files ______________________________________________________________________________:
-    par = parm.PARAMS(file_path_in, file_path_out, date) #[0] <-should be able to handle any range a.t.m
+    # define input paths for current iteration   __________________________________________________:
+    par = parm.PARAMS(file_path_in, file_path_out, date)
 
-    # clip inputs files  ______________________________________________________________________________:
+    # clip inputs files    ________________________________________________________________________:
     for i in par.getKeysIN():
-        print(f'{i : >14}', end=' - ')
+        print(f'{(i + "_" + date) : >16}', end=' - ')
         state = clipRast(par.getClipPathIN(i), par.getFilePathIN(i), par.getExtent())
         if state[0]:
             print(f'{"done" : <7} : {state[1]}')
@@ -309,7 +314,7 @@ def main(date, jdate):
     t_max = 50 # maximal temperature for plant growth
     vpd_slope = -0.3
     rs_min = 70
-    rcan_max = 1000000
+    rcan_max = 100#1000000
 
     # **net radiation canopy
     # constants or predefined:
@@ -793,7 +798,7 @@ for i in range(0, rlenRange):
 # for i in range(0,1): # temp
     if i <= rlenRange:
         os.system('cls')
-    print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]", end="\r")
+    print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]")
     main(input_dates[i], julian_dates[i])
     sleep(2)
     
