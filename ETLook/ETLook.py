@@ -811,7 +811,7 @@ for i in range(0, rlenRange):
         errCatch(errDates, input_dates[i], str(e))
     sleep(1)
 os.system('cls')
-print("The following errors were encountered:\n[date - error]\n\n")
+print("Done!!!\nProcessed \33[33m", rlenRange, "\33[0mOutputs...\n\nThe following errors were encountered:\n[date - error]\n\n")
 for i in errDates:
     print(f'{i : <5} - {errDates[i]}')
 quit()
