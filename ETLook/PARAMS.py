@@ -13,7 +13,7 @@ class PARAMS:
 
 		self.parDictClip = {
 		"albedo" : os.path.join(os.path.join(input_path, "Albedo/"), "albedo_clip_%s.tif" %input_dates),
-		"ndvi" : os.path.join(os.path.join(input_path, "Indecies/"), "Indeces_clip_%s.tif" %input_dates),
+		"ndvi" : os.path.join(os.path.join(input_path, "Indecies/"), "Indices_clip_%s.tif" %input_dates),
 		"lst" : os.path.join(os.path.join(input_path, "LST/"), "lst_clip_%s.tif" %input_dates),
 		"time" : os.path.join(os.path.join(input_path, "Time/"), "solarTime_clip.tif"),
 		"lat" : os.path.join(os.path.join(input_path, "LatLon/"), "lat_clip.tif"),
@@ -43,7 +43,7 @@ class PARAMS:
 
 		self.parDictIN = {
 		"albedo" : os.path.join(os.path.join(input_path, "Albedo/"), "Albedo_%s.tif" %input_dates),
-		"ndvi" : os.path.join(os.path.join(input_path, "Indecies/"), "Indeces_%s.tif" %input_dates),
+		"ndvi" : os.path.join(os.path.join(input_path, "Indecies/"), "Indices_%s.tif" %input_dates),
 		"lst" : os.path.join(os.path.join(input_path, "LST/"), "LST_%s.tif" %input_dates),
 		"time" : os.path.join(os.path.join(input_path, "Time/"), "solarTime.tif"),
 		"lat" : os.path.join(os.path.join(input_path, "LatLon/"), "lat.tif"),

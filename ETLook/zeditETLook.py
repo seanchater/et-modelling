@@ -86,7 +86,7 @@ def setup():
             stripDate(rDate)
 
             root.quit()
-            print("\n\tCreate new path list...")
+            print("\n\tCreating new path list...")
             dictSettings = {
                 "in": file_path_in,
                 "out": file_path_out,
@@ -370,6 +370,7 @@ def main(date, jdate):
     #=================================================================================================:
     # LAI 
 
+    # TODO : could add / subtract to max / min
     nd_min = np.nanmin(ndvi)
     nd_max = np.nanmax(ndvi)
     if nd_min == 0:
@@ -380,7 +381,6 @@ def main(date, jdate):
     vc_max = np.nanmax(vc)
     if vc_max == 1:
         vc_max = 0.9677324224821418
-
     lai = leaf.leaf_area_index(vc, vc_min, vc_max, lai_pow)
     lai_eff = leaf.effective_leaf_area_index(lai)
 

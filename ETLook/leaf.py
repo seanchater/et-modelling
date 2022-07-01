@@ -59,7 +59,6 @@ def vegetation_cover(ndvi, nd_min=0.125, nd_max=0.8, vc_pow=0.7):
     .. plot:: pyplots/leaf/plot_vegetation_cover.py
 
     """
-
     if np.isscalar(ndvi):
 
         if ndvi <= nd_min:
