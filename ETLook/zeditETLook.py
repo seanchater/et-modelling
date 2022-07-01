@@ -14,6 +14,8 @@ import csv
 import math
 import zeditETLook, solar_radiation, clear_sky_radiation, meteo, radiation, evapotranspiration, soil_moisture, leaf, stress, resistance, roughness, neutral, unstable, outputs
 import Processing_Functions as PF
+import warnings
+warnings.filterwarnings("error")
 
 current = os.path.dirname(os.path.realpath(__file__))
 etModel = os.path.dirname(current)
@@ -134,6 +136,9 @@ def clipRast(outName, inRast, ext, reCreate=False):
 
 
 def main(date, jdate):
+    
+    # catch any misc. errors
+    # try:
 
     # define input files ______________________________________________________________________________:
     par = parm.PARAMS(file_path_in, file_path_out, date) #[0] <-should be able to handle any range a.t.m
@@ -794,7 +799,10 @@ for i in range(0, rlenRange):
     if i <= rlenRange:
         os.system('cls')
     print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]", end="\r")
-    main(input_dates[i], julian_dates[i])
+    try:
+        main(input_dates[i], julian_dates[i])
+    except:
+        print("")
     sleep(2)
     
 quit()
