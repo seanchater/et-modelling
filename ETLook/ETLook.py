@@ -13,7 +13,7 @@ import tkinter as tk
 from tkinter import filedialog
 import csv
 import math
-import zeditETLook, solar_radiation, clear_sky_radiation, meteo, radiation, evapotranspiration, soil_moisture, leaf, stress, resistance, roughness, neutral, unstable, outputs
+import ETLook, solar_radiation, clear_sky_radiation, meteo, radiation, evapotranspiration, soil_moisture, leaf, stress, resistance, roughness, neutral, unstable, outputs
 import Processing_Functions as PF
 import warnings
 warnings.filterwarnings("error")
