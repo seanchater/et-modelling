@@ -1,3 +1,0 @@
-"""
-Git test two
-"""

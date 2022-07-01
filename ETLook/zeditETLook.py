@@ -15,6 +15,8 @@ import csv
 import math
 import zeditETLook, solar_radiation, clear_sky_radiation, meteo, radiation, evapotranspiration, soil_moisture, leaf, stress, resistance, roughness, neutral, unstable, outputs
 import Processing_Functions as PF
+import warnings
+warnings.filterwarnings("error")
 
 current = os.path.dirname(os.path.realpath(__file__))
 etModel = os.path.dirname(current)
@@ -139,6 +141,9 @@ def errCatch(edict:Dict, date:str, err:str):
 
 
 def main(date, jdate):
+    
+    # catch any misc. errors
+    # try:
 
     # define input paths for current iteration   __________________________________________________:
     par = parm.PARAMS(file_path_in, file_path_out, date)
@@ -798,8 +803,11 @@ for i in range(0, rlenRange):
 # for i in range(0,1): # temp
     if i <= rlenRange:
         os.system('cls')
-    print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]")
-    main(input_dates[i], julian_dates[i])
+    print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]", end="\r")
+    try:
+        main(input_dates[i], julian_dates[i])
+    except:
+        print("")
     sleep(2)
     
 quit()
