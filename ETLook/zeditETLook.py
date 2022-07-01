@@ -17,10 +17,7 @@ import Processing_Functions as PF
 
 current = os.path.dirname(os.path.realpath(__file__))
 etModel = os.path.dirname(current)
-sys.path.append(etModel)
-# import Functions as PF
 parent = os.path.dirname(etModel)
-print(etModel, parent) #tst
 
 file_path_in = ""
 file_path_out = ""
@@ -52,6 +49,7 @@ def stripDate(rDate):
     Strips a dictionary to (input dates: arr, julian dates: arr, year: str)
     sets --> global vars
     """
+
     global input_dates
     global julian_dates
     global year
@@ -61,47 +59,52 @@ def stripDate(rDate):
 
 
 ## Setting file path parameters   _________________________________________________________________:
-try:
-    sys.argv[1]    
-    if sys.argv.__contains__("-lst"):
-        print("\n\tUsing path list...")
-        with open('settings.json') as json_file:
-            data = json.load(json_file)
-            file_path_in = data["in"]
-            file_path_out = data["out"]
-            rDate = readDate(data["dfmt"])
+def setup():
+    global file_path_in
+    global file_path_out
+    global rDate
+
+    try:
+        sys.argv[1]    
+        if sys.argv.__contains__("-lst"):
+            print("\n\tUsing path list...")
+            with open('settings.json') as json_file:
+                data = json.load(json_file)
+                file_path_in = data["in"]
+                file_path_out = data["out"]
+                rDate = readDate(data["dfmt"])
+                stripDate(rDate)
+        
+        if sys.argv.__contains__("-gui"):
+            print("\n\tGUI")
+            root = tk.Tk()
+            root.withdraw()
+
+            file_path_in = filedialog.askdirectory(title="Please Select Input Folder")
+            file_path_out = filedialog.askdirectory(title="Please Select Output Folder")
+            rDate = readDate(filedialog.askopenfilename(title="Please Select Date-Range CSV"))
             stripDate(rDate)
-    
-    if sys.argv.__contains__("-gui"):
-        print("\n\tGUI")
-        root = tk.Tk()
-        root.withdraw()
 
-        file_path_in = filedialog.askdirectory(title="Please Select Input Folder")
-        file_path_out = filedialog.askdirectory(title="Please Select Output Folder")
-        rDate = readDate(filedialog.askopenfilename(title="Please Select Date-Range CSV"))
-        stripDate(rDate)
+            root.quit()
+            print("\n\tCreate new path list...")
+            dictSettings = {
+                "in": file_path_in,
+                "out": file_path_out,
+                "dfmt": rDate
+            }
+            with open("settings.json", "w") as outfile:
+                json.dump(dictSettings, outfile)
 
-        root.quit()
-        print("\n\tCreate new path list...")
-        dictSettings = {
-            "in": file_path_in,
-            "out": file_path_out,
-            "dfmt": rDate
-        }
-        with open("settings.json", "w") as outfile:
-            json.dump(dictSettings, outfile)
-
-except:
-    print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case use the -gui argument\33[0m)")
-    file_path_in = os.path.join(parent, "Data/input_data")
-    file_path_out = os.path.join(parent, "Data/output")
-    rDate = readDate(os.path.join(parent, "et-modelling/ETLook/dateFormat.csv"))
-    stripDate(rDate) 
-    
-print("Input Directory  - ", file_path_in, "\nOutput Directory - ", file_path_out, "\nDate-Range CSV   - ",input_dates)
-sleep(4)
-os.system('cls')
+    except:
+        print("\n\tAssuming file paths to be predefined...\n\t(\33[93mif this in not the case use the -gui argument\33[0m)")
+        file_path_in = os.path.join(parent, "Data/input_data")
+        file_path_out = os.path.join(parent, "Data/output")
+        rDate = readDate(os.path.join(parent, "et-modelling/ETLook/dateFormat.csv"))
+        stripDate(rDate) 
+        
+    print("Input Directory  - ", file_path_in, "\nOutput Directory - ", file_path_out, "\nDate-Range CSV   - ",input_dates)
+    sleep(4)
+    os.system('cls')
 
 ## Clipping rasters to shapefile extent   _________________________________________________________:
 def clipRast(outName, inRast, ext, reCreate=False):
@@ -144,6 +147,7 @@ def main(date, jdate):
         else:
             print(f'{"failed" : <7} : {state[1]}')
     sleep(2)
+    os.system('cls')
 
     # read inputs files  ______________________________________________________________________________:
     dest_lst = gdal.Open(par.getClipPathIN("lst"))
@@ -186,7 +190,6 @@ def main(date, jdate):
     z = dest_dem.GetRasterBand(1)
     nD = z.GetNoDataValue()
     z = z.ReadAsArray()
-
 
     dest_slope = gdal.Open(par.getClipPathIN("slope"))
     slope_deg = dest_slope.GetRasterBand(1)
@@ -365,17 +368,19 @@ def main(date, jdate):
     r0_grass = 0.23
 
     #=================================================================================================:
-    # LAI
+    # LAI 
 
     nd_min = np.nanmin(ndvi)
     nd_max = np.nanmax(ndvi)
+    if nd_min == 0:
+        vc_max = 0.125
     
     vc = leaf.vegetation_cover(ndvi, nd_min, nd_max, vc_pow)
     vc_min = np.nanmin(vc)
     vc_max = np.nanmax(vc)
     if vc_max == 1:
         vc_max = 0.9677324224821418
-    print(vc, "\nmin:", np.nanmin(vc), "\nmax:", np.nanmax(vc))
+
     lai = leaf.leaf_area_index(vc, vc_min, vc_max, lai_pow)
     lai_eff = leaf.effective_leaf_area_index(lai)
 
@@ -424,6 +429,9 @@ def main(date, jdate):
     vpd_24 = meteo.vapour_pressure_deficit_daily(svp_24, vp_24)
     stress_vpd = stress.stress_vpd(vpd_24, vpd_slope)
     stress_temp = stress.stress_temperature(t_air_24, t_opt, t_min, t_max)
+    
+    # print("\nlai:", lai_eff, "\nsress_rad:", stress_rad, "\nsress_temp:", stress_temp, "\nrs_min:", rs_min, "\nrcan_max:", rcan_max)
+
     r_canopy_0 = resistance.atmospheric_canopy_resistance(lai_eff, stress_rad, stress_vpd, stress_temp, rs_min, rcan_max)
 
     ## Save as tiff files_____________________________________________________________________________:
@@ -779,11 +787,16 @@ def main(date, jdate):
         PF.Save_as_tiff(par.getFilePathOUT("et_ref_24"), et_ref_24, geo_ex, proj_ex)
     if out.et_ref_24_mm == 1:
         PF.Save_as_tiff(par.getFilePathOUT("et_ref_24_mm"), et_ref_24_mm, geo_ex, proj_ex)
+    
+    sleep(1)
 
-
-rlenRange = len(input_dates)+1
+setup()
+rlenRange = len(input_dates)
 # for i in input_dates:
 for i in range(0,1): # temp
-    print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]")
+    print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]", end="\r")
     main(input_dates[i], julian_dates[i])
-    os.system('cls')
+    sleep(2)
+    # os.system('cls')
+    
+quit()
