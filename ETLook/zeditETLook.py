@@ -146,8 +146,6 @@ def main(date, jdate):
             print(f'{"done" : <7} : {state[1]}')
         else:
             print(f'{"failed" : <7} : {state[1]}')
-    sleep(2)
-    os.system('cls')
 
     # read inputs files  ______________________________________________________________________________:
     dest_lst = gdal.Open(par.getClipPathIN("lst"))
@@ -371,16 +369,17 @@ def main(date, jdate):
     # LAI 
 
     # TODO : could add / subtract to max / min
-    nd_min = np.nanmin(ndvi)
-    nd_max = np.nanmax(ndvi)
-    if nd_min == 0:
-        vc_max = 0.125
+    nd_min = np.nanmin(ndvi)+0.1
+    nd_max = np.nanmax(ndvi)-0.1
+    """ if nd_min == 0:
+        nd_min = 0.125 """
     
     vc = leaf.vegetation_cover(ndvi, nd_min, nd_max, vc_pow)
-    vc_min = np.nanmin(vc)
-    vc_max = np.nanmax(vc)
-    if vc_max == 1:
-        vc_max = 0.9677324224821418
+    vc_min = np.nanmin(vc)+0.1
+    vc_max = np.nanmax(vc)-0.1
+    """ if vc_max == 1:
+        vc_max = 0.9677324224821418 """
+
     lai = leaf.leaf_area_index(vc, vc_min, vc_max, lai_pow)
     lai_eff = leaf.effective_leaf_area_index(lai)
 
@@ -430,8 +429,6 @@ def main(date, jdate):
     stress_vpd = stress.stress_vpd(vpd_24, vpd_slope)
     stress_temp = stress.stress_temperature(t_air_24, t_opt, t_min, t_max)
     
-    # print("\nlai:", lai_eff, "\nsress_rad:", stress_rad, "\nsress_temp:", stress_temp, "\nrs_min:", rs_min, "\nrcan_max:", rcan_max)
-
     r_canopy_0 = resistance.atmospheric_canopy_resistance(lai_eff, stress_rad, stress_vpd, stress_temp, rs_min, rcan_max)
 
     ## Save as tiff files_____________________________________________________________________________:
@@ -792,11 +789,12 @@ def main(date, jdate):
 
 setup()
 rlenRange = len(input_dates)
-# for i in input_dates:
-for i in range(0,1): # temp
+for i in range(0, rlenRange):
+# for i in range(0,1): # temp
+    if i <= rlenRange:
+        os.system('cls')
     print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]", end="\r")
     main(input_dates[i], julian_dates[i])
     sleep(2)
-    # os.system('cls')
     
 quit()
