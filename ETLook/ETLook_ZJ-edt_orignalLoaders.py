@@ -9,8 +9,8 @@ import numpy as np
 from pyparsing import Dict
 import outputs as out
 import PARAMS as parm
-import tkinter as tk
-from tkinter import filedialog
+# import tkinter as tk
+# from tkinter import filedialog
 import csv
 import math
 import solar_radiation, clear_sky_radiation, meteo, radiation, evapotranspiration, soil_moisture, leaf, stress, resistance, roughness, neutral, unstable, outputs
@@ -120,7 +120,7 @@ def clipRast(outName, inRast, ext, reCreate): #TEMP# currently res is harcoded
         ras = gdal.Open(inRast)
         srs = ras.GetProjectionRef()
         try:
-            gdal.Warp(outName, ras, srcSRS=srs, options='-cutline ' + ext + ' -crop_to_cutline -wo CUTLINE_ALL_TOUCHED=TRUE -ts 28 28')#cutlineDSName=ext, cropToCutline=ras, srcSRS=srs, resampleAlg='near', width=28, height=28)#, targetAlignedPixels=True)
+            gdal.Warp(outName, ras, srcSRS=srs, options='-cutline ' + ext + ' -crop_to_cutline -wo CUTLINE_ALL_TOUCHED=TRUE -ts 28 28 -r near -overwrite')#cutlineDSName=ext, cropToCutline=ras, srcSRS=srs, resampleAlg='near', width=28, height=28)#, targetAlignedPixels=True)
             return [True, "Re-Clipped Successfully"]
         except:
             return [False, "Could not Re-Clip..."]
@@ -159,137 +159,160 @@ def main(date, jdate):
 
     # read inputs files  ______________________________________________________________________________:
     dest_lst = gdal.Open(par.getClipPathIN("lst"))
+    # lst = dest_lst.GetRasterBand(1).ReadAsArray().astype("float")
+    # lst[lst == -9999] = np.nan
+    # Alternate method
     lst = dest_lst.GetRasterBand(1)
     nD = lst.GetNoDataValue()
-    lst = lst.ReadAsArray().astype("float")
+    lst = lst.ReadAsArray().astype(np.float32)
     lst[lst == nD] = np.nan
 
     dest_albedo = gdal.Open(par.getClipPathIN("albedo"))
-    r0 = dest_albedo.GetRasterBand(1)
-    nD = r0.GetNoDataValue()
-    r0 = r0.ReadAsArray().astype("float")
-    r0[r0 == nD] = np.nan
+    r0 = dest_albedo.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    r0[np.isnan(lst)] = np.nan
 
     dest_ndvi = gdal.Open(par.getClipPathIN("ndvi"))
-    ndvi = dest_ndvi.GetRasterBand(1)
-    nD = ndvi.GetNoDataValue()
-    ndvi = ndvi.ReadAsArray().astype("float")
-    ndvi[ndvi == nD] = np.nan
+    ndvi = dest_ndvi.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    ndvi[np.isnan(lst)] = np.nan
 
     desttime = gdal.Open(par.getClipPathIN("time"))
-    dtime = desttime.GetRasterBand(1)
-    nD = dtime.GetNoDataValue()
-    dtime = dtime.ReadAsArray().astype("float")
-    dtime[dtime == nD] = np.nan
+    dtime = desttime.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    dtime[np.isnan(lst)] = np.nan
 
     dest_lat = gdal.Open(par.getClipPathIN("lat"))
-    lat_deg = dest_lat.GetRasterBand(1)
-    nD = lat_deg.GetNoDataValue()
-    lat_deg = lat_deg.ReadAsArray().astype("float")
-    lat_deg[lat_deg == nD] = np.nan
+    lat_deg = dest_lat.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    lat_deg[np.isnan(lst)] = np.nan
 
     dest_lon = gdal.Open(par.getClipPathIN("lon"))
-    lon_deg = dest_lon.GetRasterBand(1)
-    nD = lon_deg.GetNoDataValue()
-    lon_deg = lon_deg.ReadAsArray().astype("float")
-    lon_deg[lon_deg == nD] = np.nan
-
+    lon_deg = dest_lon.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    lon_deg[np.isnan(lst)] = np.nan
+    
     dest_dem = gdal.Open(par.getClipPathIN("dem"))
-    z = dest_dem.GetRasterBand(1)
-    nD = z.GetNoDataValue()
-    z = z.ReadAsArray().astype("float")
+    z = dest_dem.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    z[np.isnan(lst)] = float(np.nan)
+    # plt.imshow(z)
+    # plt.title('z')
+    # plt.show()
 
     dest_slope = gdal.Open(par.getClipPathIN("slope"))
-    slope_deg = dest_slope.GetRasterBand(1)
-    nD = slope_deg.GetNoDataValue()
-    slope_deg = slope_deg.ReadAsArray().astype("float")
-    slope_deg[slope_deg == nD] = np.nan
+    slope_deg = dest_slope.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    slope_deg[np.isnan(lst)] = np.nan
 
     dest_aspect = gdal.Open(par.getClipPathIN("aspect"))
-    aspect_deg = dest_aspect.GetRasterBand(1)
-    nD = aspect_deg.GetNoDataValue()
-    aspect_deg = aspect_deg.ReadAsArray().astype("float")
-    aspect_deg[aspect_deg == nD] = np.nan
+    aspect_deg = dest_aspect.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    aspect_deg[np.isnan(lst)] = np.nan
+    # plt.imshow(aspect_deg)
+    # plt.show()
 
     dest_lm = gdal.Open(par.getClipPathIN("landMask"))
-    land_mask = dest_lm.GetRasterBand(1)
-    nD = land_mask.GetNoDataValue()
-    land_mask = land_mask.ReadAsArray().astype("float")
+    land_mask = dest_lm.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    land_mask[np.isnan(lst)] = np.nan
 
     # dest_bulk = gdal.Open(par.getClipPathIN("bulk"))
     # bulk = dest_bulk.GetRasterBand(1).ReadAsArray()
 
     dest_maxobs = gdal.Open(par.getClipPathIN("maxObs"))
-    z_obst_max = dest_maxobs.GetRasterBand(1)
-    nD = z_obst_max.GetNoDataValue()
-    z_obst_max = z_obst_max.ReadAsArray().astype("float")
+    z_obst_max = dest_maxobs.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    z_obst_max[np.isnan(lst)] = np.nan
 
     # HACK using original raster not clipped version # UN-HACK
-    dest_pairsea24 = gdal.Open(par.getClipPathIN("pair_24_0"))
-    p_air_0_24 = dest_pairsea24.GetRasterBand(1).ReadAsArray().astype("float")
+    dest_pairsea24 = gdal.Open(par.getFilePathIN("pair_24_0"))
+    p_air_0_24 = dest_pairsea24.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    # plt.imshow(p_air_0_24)
+    # plt.title('p_air_0_24-kpa')
+    # plt.show()
     p_air_0_24 = meteo.air_pressure_kpa2mbar(p_air_0_24)
-    plt.imshow(p_air_0_24)
-    plt.show()
+    p_air_0_24[np.isnan(lst)] = np.nan
+    # plt.imshow(p_air_0_24)
+    # plt.title('p_air_0_24-mbar')
+    # plt.show()
 
     # HACK using original raster not clipped version # UN-HACK
-    dest_pairseainst = gdal.Open(par.getClipPathIN("pair_inst_0"))
-    p_air_0_i = dest_pairseainst.GetRasterBand(1).ReadAsArray().astype("float")
+    dest_pairseainst = gdal.Open(par.getFilePathIN("pair_inst_0"))
+    p_air_0_i = dest_pairseainst.GetRasterBand(1).ReadAsArray().astype(np.float32)
     p_air_0_i = meteo.air_pressure_kpa2mbar(p_air_0_i)
+    p_air_0_i[np.isnan(lst)] = np.nan
+    # plt.imshow(p_air_0_i)
+    # plt.title('p_air_0_i')
+    # plt.show()
 
     # HACK : using original raster not clipped version  # UN-HACK
     # AND 
     # TODO : currently using sea level pressure  not the other version
-    dest_pairinst = gdal.Open(par.getClipPathIN("pair_inst_0"))
-    p_air_i = dest_pairinst.GetRasterBand(1).ReadAsArray().astype("float")
+    dest_pairinst = gdal.Open(par.getFilePathIN("pair_inst_0"))
+    p_air_i = dest_pairinst.GetRasterBand(1).ReadAsArray().astype(np.float32)
     p_air_i = meteo.air_pressure_kpa2mbar(p_air_i)
+    p_air_i[np.isnan(lst)] = np.nan
+    # plt.imshow(p_air_i)
+    # plt.title('p_air_i')
+    # plt.show()
 
     # HACK using original raster not clipped version # UN-HACK
     dest_precip = gdal.Open(par.getClipPathIN("pre"))
-    P_24 = dest_precip.GetRasterBand(1).ReadAsArray().astype("float")
+    P_24 = dest_precip.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    P_24[np.isnan(lst)] = np.nan
 
     dest_hum24 = gdal.Open(par.getClipPathIN("hum_24"))
-    qv_24 = dest_hum24.GetRasterBand(1).ReadAsArray().astype("float")
+    qv_24 = dest_hum24.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    qv_24 = meteo.hum_ratio_g2kg(qv_24)
+    qv_24[np.isnan(lst)] = np.nan
+    # plt.imshow(qv_24)
+    # plt.title('qv_24')
+    # plt.show()
+    # print(qv_24)
 
     dest_huminst = gdal.Open(par.getClipPathIN("hum_inst"))
-    qv_i = dest_huminst.GetRasterBand(1).ReadAsArray().astype("float")
+    qv_i = dest_huminst.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    qv_i = meteo.hum_ratio_g2kg(qv_i)
     qv_i[np.isnan(lst)] = np.nan
 
-    dest_tair24 = gdal.Open(par.getClipPathIN("tair_24"))
-    t_air_24 = dest_tair24.GetRasterBand(1).ReadAsArray().astype("float")
+    dest_tair24 = gdal.Open(par.getFilePathIN("tair_24"))
+    t_air_24 = dest_tair24.GetRasterBand(1).ReadAsArray().astype(np.float32)
     # t_air_24 = meteo.disaggregate_air_temperature_daily(t_air_24_coarse, z, z_coarse, lapse)
+    t_air_24[np.isnan(lst)] = np.nan
 
-    dest_tair24 = gdal.Open(par.getClipPathIN("tair_max_24"))
-    t_air_max_24 = dest_tair24.GetRasterBand(1).ReadAsArray().astype("float")
+    dest_tair24 = gdal.Open(par.getFilePathIN("tair_max_24"))
+    t_air_max_24 = dest_tair24.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    t_air_max_24[np.isnan(lst)] = np.nan
+    # plt.imshow(t_air_max_24)
+    # plt.show()
 
-    dest_tair24 = gdal.Open(par.getClipPathIN("tair_min_24"))
-    t_air_min_24 = dest_tair24.GetRasterBand(1).ReadAsArray().astype("float")
+    dest_tair24 = gdal.Open(par.getFilePathIN("tair_min_24"))
+    t_air_min_24 = dest_tair24.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    t_air_min_24[np.isnan(lst)] = np.nan
+    # plt.imshow(t_air_min_24)
+    # plt.show()
 
-    dest_tairinst = gdal.Open(par.getClipPathIN("tair_inst"))
-    t_air_i = dest_tairinst.GetRasterBand(1).ReadAsArray().astype("float")
+    dest_tairinst = gdal.Open(par.getFilePathIN("tair_inst"))
+    t_air_i = dest_tairinst.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    t_air_i[np.isnan(lst)] = np.nan
+    # plt.imshow(t_air_i)
+    # plt.title('t_air_i')
+    # plt.show()
 
-    # HACK using original raster not clipped version # UN-HACK
-    dest_tairamp = gdal.Open(par.getClipPathIN("tair_amp"))
-    t_amp_year = dest_tairamp.GetRasterBand(1).ReadAsArray().astype("float")
+    # HACK using original raster not clipped version 
+    dest_tairamp = gdal.Open(par.getFilePathIN("tair_amp"))
+    t_amp_year = dest_tairamp.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    t_amp_year[np.isnan(lst)] = np.nan
 
-    dest_wind24 = gdal.Open(par.getClipPathIN("wind_24"))
-    u_24 = dest_wind24.GetRasterBand(1)
-    nD = u_24.GetNoDataValue()
-    u_24 = u_24.ReadAsArray().astype("float")
+    dest_wind24 = gdal.Open(par.getFilePathIN("wind_24"))
+    u_24 = dest_wind24.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    u_24[np.isnan(lst)] = np.nan
 
-    dest_windinst = gdal.Open(par.getClipPathIN("wind_inst"))
-    u_i = dest_windinst.GetRasterBand(1)
-    nD = u_i.GetNoDataValue()
-    u_i = u_i.ReadAsArray().astype("float")
+    dest_windinst = gdal.Open(par.getFilePathIN("wind_inst"))
+    u_i = dest_windinst.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    u_i[np.isnan(lst)] = np.nan
+    # plt.imshow(u_i)
+    # plt.title('u_i')
+    # plt.show()
 
     dest_watcol = gdal.Open(par.getClipPathIN("watCol_inst"))
-    wv_i = dest_watcol.GetRasterBand(1)
-    nD = wv_i.GetNoDataValue()
-    wv_i = wv_i.ReadAsArray().astype("float")
+    wv_i = dest_watcol.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    wv_i[np.isnan(lst)] = np.nan
 
     dest_trans = gdal.Open(par.getClipPathIN("trans_24"))
-    trans_24 = dest_trans.GetRasterBand(1)
-    nD = trans_24.GetNoDataValue()
-    trans_24 = trans_24.ReadAsArray().astype("float")
+    trans_24 = dest_trans.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    trans_24[np.isnan(lst)] = np.nan
 
     # define prediction extent  ______________________________________________________________________:
     geo_ex = dest_lst.GetGeoTransform()
@@ -321,7 +344,7 @@ def main(date, jdate):
     t_max = 50 # maximal temperature for plant growth
     vpd_slope = -0.3
     rs_min = 70
-    rcan_max = 100#1000000
+    rcan_max = 100 #1000000
 
     # **net radiation canopy
     # constants or predefined:
@@ -379,18 +402,31 @@ def main(date, jdate):
 
     #=================================================================================================:
     # LAI 
+    ## ORIGINAL
+    nd_min = 0.125
+    nd_max = 0.8
+    vc_pow = 0.7
+    vc_min = 0
+    vc_max = 0.9677324224821418
+    lai_pow = -0.45
 
     # TODO : could add / subtract to max / min
-    nd_min = np.nanmin(ndvi)+0.1
-    nd_max = np.nanmax(ndvi)-0.1
-    """ if nd_min == 0:
-        nd_min = 0.125 """
+    # print('nd MIN: ', np.nanmin(ndvi))
+    # print('nd MAX: ', np.nanmax(ndvi))
+
+    # nd_min = np.nanmin(ndvi)+0.1
+    # nd_max = np.nanmax(ndvi)-0.1
+    # """ if nd_min == 0:
+    #     nd_min = 0.125 """
     
     vc = leaf.vegetation_cover(ndvi, nd_min, nd_max, vc_pow)
-    vc_min = np.nanmin(vc)+0.1
-    vc_max = np.nanmax(vc)-0.1
-    """ if vc_max == 1:
-        vc_max = 0.9677324224821418 """
+
+    # print('vc MIN: ', np.nanmin(vc))
+    # print('vc MAX: ', np.nanmax(vc))
+    # vc_min = np.nanmin(vc)+0.1
+    # vc_max = np.nanmax(vc)-0.1
+    # """ if vc_max == 1:
+    #     vc_max = 0.9677324224821418 """
 
     lai = leaf.leaf_area_index(vc, vc_min, vc_max, lai_pow)
     lai_eff = leaf.effective_leaf_area_index(lai)
@@ -441,6 +477,19 @@ def main(date, jdate):
     stress_vpd = stress.stress_vpd(vpd_24, vpd_slope)
     stress_temp = stress.stress_temperature(t_air_24, t_opt, t_min, t_max)
     
+    # plt.imshow(p_air_24)
+    # plt.show()
+    # plt.imshow(vp_24)
+    # plt.show()
+    # plt.imshow(svp_24)
+    # plt.show()
+    # plt.imshow(vpd_24)
+    # plt.show()
+    # plt.imshow(stress_vpd)
+    # plt.show()
+    # plt.imshow(stress_temp)
+    # plt.show()
+
     r_canopy_0 = resistance.atmospheric_canopy_resistance(lai_eff, stress_rad, stress_vpd, stress_temp, rs_min, rcan_max)
 
     ## Save as tiff files_____________________________________________________________________________:
@@ -812,16 +861,19 @@ for i in range(0, rlenRange):
         # os.system('cls')
         print('blank')
     print("Currently processing: {", input_dates[i],"}\n[", (i+1), " / ", rlenRange, "]")
-    # try:
-    main(input_dates[i], julian_dates[i])
-    # except Exception as e:
-    #     errCatch(errDates, input_dates[i], str(e))
-    break
+    try:
+        main(input_dates[i], julian_dates[i])
+    except Exception as e:
+        errCatch(errDates, input_dates[i], str(e))
+    # break
     sleep(1)
 # os.system('cls')
-print("Done!!!\nProcessed \33[33m", rlenRange, "\33[0mOutputs...\n\nThe following errors were encountered:\n[date - error]\n\n")
-for i in errDates:
-    print(f'{i : <5} - {errDates[i]}')
+print("Done!!!\nProcessed \33[33m", rlenRange, "\33[0mOutputs...\n")
+
+if len(errDates)>0:
+    print('The following errors were encountered:\n[date - error]\n\n')
+    for i in errDates:
+        print(f'{i : <5} - {errDates[i]}')
 quit()
 
 ## ORIGINAL

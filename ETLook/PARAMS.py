@@ -27,7 +27,7 @@ class PARAMS:
 		"pair_24_0" : os.path.join(os.path.join(input_path, "sea_pressure_24/"), "spressure_24_clip_%s.tif" %input_dates),
 		"pair_inst_0" : os.path.join(os.path.join(input_path, "sea_pressure_inst/"), "spressure_i_clip_%s.tif" %input_dates),
 		#"pair_inst" : "Pair_inst_%s.tif",
-		"pre" : os.path.join(os.path.join(input_path,"precip_24/"), "precip_24_clip_%s.tif"),
+		"pre" : os.path.join(os.path.join(input_path,"precip_24/"), "precip_24_clip_%s.tif" %input_dates),
 		"hum_24" : os.path.join(os.path.join(input_path, "hum_24/"),"hum_24_clip_%s.tif" %input_dates),
 		"hum_inst" : os.path.join(os.path.join(input_path, "hum_inst/"), "hum_i_clip_%s.tif" %input_dates),
 		"tair_24" : os.path.join(os.path.join(input_path, "temp_24/"),"temp_24_clip_%s.tif" %input_dates),

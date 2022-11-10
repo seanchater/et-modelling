@@ -52,7 +52,9 @@ def dew_point_temperature_inst(vp_i):
         :math:`Td_{a}`
         [K]
     """
-    t_dew_i = (237.3 * np.log(vp_i / 6.108)) / (17.27 - np.log(vp_i / 6.108))
+    v = vp_i / 6.108
+    # print(v)
+    t_dew_i = (237.3 * np.log(v)) / (17.27 - np.log(v))
 
     return t_dew_i
 
@@ -197,11 +199,13 @@ def psi_m(y):
     """
     a = 0.33
     b = 0.41
-    x = (y / a) ** (1. / 3.)
+    c = a + b
+    rt = (y / a)
+    x = np.sign(rt) * (np.abs(rt)) ** (1. / 3.)
     phi_0 = -np.log(a) + np.sqrt(3) * b * a ** (1. / 3.) * np.pi / 6.
     res = (
-        np.log(a + y)
-        - 3 * b * y ** (1. / 3.)
+        np.log(c)
+        - 3 * b * np.sign(y) * (np.abs(y)) ** (1. / 3.)
         + (b * a ** (1. / 3.)) / 2. * np.log((1 + x) ** 2 / (1 - x + x ** 2))
         + np.sqrt(3) * b * a ** (1. / 3.) * np.arctan((2 * x - 1) / np.sqrt(3))
         + phi_0
@@ -251,7 +255,10 @@ def psi_h(y):
     c = 0.33
     d = 0.057
     n = 0.78
-    return ((1 - d) / n) * np.log((c + y ** n) / c)
+    v = ((c + (np.sign(y) * (np.abs(y)) ** n)) / c)
+    # print(y)
+    # print(v)
+    return ((1 - d) / n) * np.log(v)
 
 
 def initial_friction_velocity_inst(u_b_i, z0m, disp, z_b=100):
@@ -327,7 +334,9 @@ def atmospheric_emissivity_inst(vp_i, t_air_k_i):
     .. [1] Brutsaert, W., On a derivable formula for long-wave radiation
         from clear skies, Water Resour. Res, 1975, 11, 742-744.
     """
-    return 1.24 * (vp_i / t_air_k_i) ** (1. / 7.)
+    v = (vp_i / t_air_k_i)
+
+    return 1.24 * np.sign(v) * (np.abs(v)) ** (1. / 7.)
 
 
 def net_radiation_bare(ra_hor_clear_i, emiss_atm_i, t_air_k_i, lst, r0_bare=0.38):
@@ -810,6 +819,7 @@ def aerodynamical_resistance_bare(u_i, L_bare, z0m_bare=0.001, disp_bare=0.0, z_
 
     z1 = (z_obs - disp_bare) / z0m_bare
     z2 = (z_obs - disp_bare) / L_bare
+    # print('z2', z2)
     res = ((np.log(z1) - psi_m(-z2)) * (np.log(z1) - psi_h(-z2))) / (c.k ** 2 * u_i)
 
     return res

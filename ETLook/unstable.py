@@ -212,7 +212,8 @@ def stability_parameter(monin, disp, z_b=100):
         :math:`x_{b}`
         [-]
     """
-    return (1 - 16 * ((z_b - disp) / monin)) ** 0.25
+    v = (1 - 16 * ((z_b - disp) / monin))
+    return (np.sign(v) * (np.abs(v)) ** 0.25)
 
 
 def stability_factor(x_b):
@@ -275,7 +276,8 @@ def stability_parameter_obs(monin, z_obs):
         :math:`x_{obs}`
         [-]
     """
-    return (1 - 16 * (z_obs / monin)) ** 0.25
+    v = (1 - 16 * (z_obs / monin))
+    return (np.sign(v) * (np.abs(v)) ** 0.25)
 
 
 def stability_correction_heat_obs(x_b_obs):

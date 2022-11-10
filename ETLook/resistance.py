@@ -54,8 +54,9 @@ def atmospheric_canopy_resistance(lai_eff, stress_rad, stress_vpd,
     bulk_stress = stress_rad * stress_temp * stress_vpd
     max_mask = np.logical_or(bulk_stress == 0, lai_eff == 0)
 
-    # print("bulk_stress: \n" + str(bulk_stress))
-    # print("lai eff: \n" + str(lai_eff))
+    # print("bulk_stress: \n", bulk_stress)
+    # print("lai eff: \n", lai_eff)
+
     r_canopy_0 = (rs_min / lai_eff) / bulk_stress
     r_canopy_0[max_mask] = rcan_max
 

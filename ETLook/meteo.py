@@ -676,6 +676,9 @@ def vapour_pressure_deficit(svp, vp):
 
     """
     vpd = svp - vp
+    # print(svp)
+    # print(vp)
+    # print(vpd)
     vpd[vpd < 0] = 0
 
     return vpd
@@ -1295,4 +1298,23 @@ def air_pressure_kpa2mbar(p_air_kpa):
         :math:`Pair_{a}`
         [mbar]
     """
-    return p_air_kpa * 10
+    return p_air_kpa / 100 # was * 10
+
+def hum_ratio_g2kg(r_hum_g):
+    """Like :func:`p_air`
+
+    Parameters
+    ----------
+    p_air_kpa : float
+        hum ratio
+        :math:`Rhum_{a}`
+        [g/kg]
+
+    Returns
+    -------
+    p_air_mbar : float
+        hum ratio
+        :math:`Rhum_{a}`
+        [kg/kg]
+    """
+    return r_hum_g / 1000
